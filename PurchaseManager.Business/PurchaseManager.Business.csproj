@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.6" />
+    <PackageReference Include="System.Reactive" Version="6.0.1" />
+    <PackageReference Include="Utility.Kafka" Version="1.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PurchaseManager.Repository\PurchaseManager.Repository.csproj" />
+    <ProjectReference Include="..\PurchaseManager.Shared\PurchaseManager.Shared.csproj" />
+  </ItemGroup>
+
+</Project>
