@@ -5,49 +5,48 @@ using System.Linq;
 using static System.Runtime.CompilerServices.RuntimeHelpers;
 using System.Numerics;
 using Microsoft.EntityFrameworkCore.Storage;
-using PurchaseManager.Repository.Model;
 
 namespace PurchaseManager.Repository;
 
-public class Repository(SupplierDbContext dbContext) : IRepository
+public class Repository(PurchaseDbContext dbContext) : IRepository
 {
 
-	#region Order
-	public async Task<Order?> CreateOrderAsync(Order model, CancellationToken ct = default)
+	#region SupplierOrder
+	public async Task<SupplierOrder?> CreateSupplierOrderAsync(SupplierOrder model, CancellationToken ct = default)
 	{
-		await dbContext.Orders.AddAsync(model, ct);
+		await dbContext.SupplierOrders.AddAsync(model, ct);
 		return model;
 	}
-	public async Task DeleteOrderAsync(int orderId, CancellationToken ct = default)
+	public async Task DeleteSupplierOrderAsync(int SupplierOrderId, CancellationToken ct = default)
 	{
-		Order? order = await GetOrderByIdAsync(orderId, ct);
-		if (order == null) return;
-		dbContext.Orders.Remove(order);
+		SupplierOrder? SupplierOrder = await GetSupplierOrderByIdAsync(SupplierOrderId, ct);
+		if (SupplierOrder == null) return;
+		dbContext.SupplierOrders.Remove(SupplierOrder);
 	}
-	public async Task<Order?> GetOrderByIdAsync(int OrderId, CancellationToken ct = default)
+	public async Task<SupplierOrder?> GetSupplierOrderByIdAsync(int SupplierOrderId, CancellationToken ct = default)
 	{
-		return  await dbContext.Orders
-			.Where(o => o.Id == OrderId)
-			.Include(o => o.ProductOrder)
-			.ThenInclude(p => p.Product)
+		return  await dbContext.SupplierOrders
+			.Where(o => o.Id == SupplierOrderId)
+			.Include(o => o.RawMaterialSupplierOrder)
+			.ThenInclude(p => p.RawMaterial)
 			.AsNoTracking()
 			.SingleOrDefaultAsync(ct);
 	}
-	public  Task<List<Order>> GetOrderBySupplierIdAsync(int supplierId, CancellationToken ct = default)
+	public  Task<List<SupplierOrder>> GetSupplierOrderBySupplierIdAsync(int supplierId, CancellationToken ct = default)
 	{
-		return  dbContext.Orders
+		return  dbContext.SupplierOrders
 			.Where(o => o.SupplierId == supplierId)
-			.Include(o => o.ProductOrder)
-				.ThenInclude(po => po.Product)
+			.Include(o => o.RawMaterialSupplierOrder)
+				.ThenInclude(po => po.RawMaterial)
 			.AsNoTracking()
 			.ToListAsync(ct);
 
 	}
-	public async Task DeleteAllOrdersBySupplierIdAsync(int supplierId, CancellationToken ct = default)
+	public async Task DeleteAllSupplierOrdersBySupplierIdAsync(int supplierId, CancellationToken ct = default)
 	{
-		List<Order> orderList = await GetOrderBySupplierIdAsync(supplierId, ct);
-		if (orderList == null || orderList.Count == 0) return;
-		dbContext.Orders.RemoveRange(orderList);
+		List<SupplierOrder> SupplierOrderList = await GetSupplierOrderBySupplierIdAsync(supplierId, ct);
+		if (SupplierOrderList == null || SupplierOrderList.Count == 0) return;
+		dbContext.SupplierOrders.RemoveRange(SupplierOrderList);
 	}
 
 
@@ -60,101 +59,101 @@ public class Repository(SupplierDbContext dbContext) : IRepository
 		await dbContext.AddAsync(model, ct);
 		return model;
 	}
-	public async Task DeleteSupplier(int supplierId, CancellationToken ct = default)
+	public async Task DeleteSupplierAsync(int supplierId, CancellationToken ct = default)
 	{
-		var supplier = await GetSupplierById(supplierId, ct);
+		var supplier = await GetSupplierByIdAsync(supplierId, ct);
 		if (supplier == null) return;
 		dbContext.Suppliers.Remove(supplier);
 	}
-	public async Task<Supplier?> GetSupplierById(int customerId, CancellationToken ct = default)
+	public async Task<Supplier?> GetSupplierByIdAsync(int supplierId, CancellationToken ct = default)
 	{
 		return await dbContext.Suppliers
-			.Where(s => s.Id == customerId)
-			.Include(s => s.Products)
-			.Include(s => s.Orders)
-				.ThenInclude(o => o.ProductOrder)  
+			.Where(s => s.Id == supplierId)
+			.Include(s => s.RawMaterials)
+			.Include(s => s.SupplierOrders)
+				.ThenInclude(o => o.RawMaterialSupplierOrder)  
 			.AsNoTracking()  
 			.SingleOrDefaultAsync(ct);
 
 	}
 	public async Task<Supplier?> UpdateSupplierAsync(Supplier model, CancellationToken ct = default)
 	{
-		Supplier? supplier = await GetSupplierById(model.Id, ct);
+		Supplier? supplier = await GetSupplierByIdAsync(model.Id, ct);
 		if (supplier == null) return null;
 		dbContext.Suppliers.Update(model);
 		return model;
 	}
 	#endregion
 
-	#region Product
-	public async Task<Product> CreateProductAsync(Product model, CancellationToken ct = default)
+	#region RawMaterial
+	public async Task<RawMaterial> CreateRawMaterialAsync(RawMaterial model, CancellationToken ct = default)
 	{
 		await dbContext.AddAsync(model, ct);
 		return model;
 	}
-	public async Task DeleteProduct(int productId, CancellationToken ct = default)
+	public async Task DeleteRawMaterialAsync(int rawMaterialId, CancellationToken ct = default)
 	{
-		var model = await GetProductById(productId, ct);
+		var model = await GetRawMaterialByIdAsync(rawMaterialId, ct);
 		if(model == null) return;
-		dbContext.Products.Remove(model);
+		dbContext.RawMaterials.Remove(model);
 	}
-	public Task<List<Product>> GetAllProductBySupplierId(int supplierId, CancellationToken ct = default)
+	public async Task<List<RawMaterial>> GetAllRawMaterialBySupplierIdAsync(int supplierId, CancellationToken ct = default)
 	{
-		return dbContext.Products.Where(o => o.SupplierId == supplierId).AsNoTracking().ToListAsync(ct);
+		return await  dbContext.RawMaterials.Where(o => o.SupplierId == supplierId).AsNoTracking().ToListAsync(ct);
 	}
-	public async Task<Product?> GetProductById(int productId, CancellationToken ct = default)
+	public async Task<RawMaterial?> GetRawMaterialByIdAsync(int rawMaterialId, CancellationToken ct = default)
 	{
-		return await dbContext.Products.Where(p => p.Id == productId).AsNoTracking().SingleOrDefaultAsync(ct);
+		return await dbContext.RawMaterials.Where(p => p.Id == rawMaterialId).AsNoTracking().SingleOrDefaultAsync(ct);
 	}
-	public async Task<Product?> UpdateProductAsync(Product model, CancellationToken ct = default)
+	public async Task<RawMaterial?> UpdateRawMaterialAsync(RawMaterial model, CancellationToken ct = default)
 	{
-		Product? product = await GetProductById(model.Id, ct);
-		if (product == null) return null;
-		dbContext.Products.Update(model);
+		RawMaterial? RawMaterial = await GetRawMaterialByIdAsync(model.Id, ct);
+		if (RawMaterial == null) return null;
+		dbContext.RawMaterials.Update(model);
 		return model;
 	}
-	public async Task DeleteAllProductsBySupplierIdAsync(int supplierId, CancellationToken ct = default)
+	public async Task DeleteAllRawMaterialsBySupplierIdAsync(int supplierId, CancellationToken ct = default)
 	{
-		List<Product>? ProductList = await GetAllProductBySupplierId(supplierId, ct);
-		if (ProductList == null || ProductList.Count == 0) return;
-		dbContext.Products.RemoveRange(ProductList);
+		List<RawMaterial>? RawMaterialList = await GetAllRawMaterialBySupplierIdAsync(supplierId, ct);
+		if (RawMaterialList == null || RawMaterialList.Count == 0) return;
+		dbContext.RawMaterials.RemoveRange(RawMaterialList);
 	}
 	#endregion
 
-	#region ProductOrder
-	public async Task<ProductOrder> CreateProductOrderAsync(ProductOrder model, CancellationToken ct = default)
+	#region RawMaterialSupplierOrder
+	public async Task<RawMaterialSupplierOrder> CreateRawMaterialSupplierOrderAsync(RawMaterialSupplierOrder model, CancellationToken ct = default)
 	{
-		await dbContext.ProductOrders.AddAsync(model, ct);
+		await dbContext.RawMaterialSupplierOrders.AddAsync(model, ct);
 		return model;			
 	}
-	public async Task DeleteProductOrder(ProductOrder productOrder, CancellationToken ct = default)
+	public async Task DeleteRawMaterialSupplierOrder(RawMaterialSupplierOrder rawMaterialSupplierOrder, CancellationToken ct = default)
 	{
-		dbContext.ProductOrders.Remove(productOrder);
+		dbContext.RawMaterialSupplierOrders.Remove(rawMaterialSupplierOrder);
 	}
 
-	public async Task<List<ProductOrder>> GetAllProductOrderByOrderIdAsync(int orderId, CancellationToken ct = default)
+	public async Task<List<RawMaterialSupplierOrder>> GetAllRawMaterialSupplierOrderBySupplierOrderIdAsync(int SupplierOrderId, CancellationToken ct = default)
 	{
-		return await dbContext.ProductOrders
-			.Where(po => po.OrderId == orderId)
+		return await dbContext.RawMaterialSupplierOrders
+			.Where(po => po.SupplierOrderId == SupplierOrderId)
 			.AsNoTracking()
 			.ToListAsync(ct);
 	}
 
-	public async Task<List<ProductOrder>> GetAllProductOrderByProductIdAsync(int productId, CancellationToken ct = default)
+	public async Task<List<RawMaterialSupplierOrder>> GetAllRawMaterialSupplierOrderByRawMaterialIdAsync(int rawMaterialId, CancellationToken ct = default)
 	{
-		return await dbContext.ProductOrders
-			.Where(po => po.ProductId == productId)
+		return await dbContext.RawMaterialSupplierOrders
+			.Where(po => po.RawMaterialId == rawMaterialId)
 			.AsNoTracking()
 			.ToListAsync(ct);
 	}
 
 
 
-	public async Task DeleteAllProductOrdersByOrderIdAsync(int orderId, CancellationToken ct = default)
+	public async Task DeleteAllRawMaterialSupplierOrdersBySupplierOrderIdAsync(int SupplierOrderId, CancellationToken ct = default)
 	{
-		var listOfProductOrder = await GetAllProductOrderByOrderIdAsync(orderId, ct);
-		if (listOfProductOrder == null || listOfProductOrder.Count == 0) return;
-		dbContext.ProductOrders.RemoveRange(listOfProductOrder);
+		var listOfRawMaterialSupplierOrder = await GetAllRawMaterialSupplierOrderBySupplierOrderIdAsync(SupplierOrderId, ct);
+		if (listOfRawMaterialSupplierOrder == null || listOfRawMaterialSupplierOrder.Count == 0) return;
+		dbContext.RawMaterialSupplierOrders.RemoveRange(listOfRawMaterialSupplierOrder);
 	}
 	#endregion
 
@@ -183,7 +182,7 @@ public class Repository(SupplierDbContext dbContext) : IRepository
 
 	#endregion
 
-	public async Task SaveChanges(CancellationToken ct = default)
+	public async Task SaveChangesAsync(CancellationToken ct = default)
 	{
 		await dbContext.SaveChangesAsync(ct);
 	}
@@ -200,6 +199,29 @@ public class Repository(SupplierDbContext dbContext) : IRepository
 			{
 				await action();
 				await transaction.CommitAsync();
+			}
+			catch
+			{
+				await transaction.RollbackAsync();
+				throw;
+			}
+		}
+	}
+
+	public async Task<T> CreateTransaction<T>(Func<Task<T>> action)
+	{
+		if (dbContext.Database.CurrentTransaction != null)
+		{
+			return await action();
+		}
+		else
+		{
+			using var transaction = await dbContext.Database.BeginTransactionAsync();
+			try
+			{
+				var result = await action();
+				await transaction.CommitAsync();
+				return result;
 			}
 			catch
 			{

@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace PurchaseManager.Repository.Model
 {
-    public class ProductOrder
+    public class RawMaterialSupplierOrder
     {
         public int Id { get; set; }
-        public Product Product { get; set; }
-        public int ProductId { get; set; }
-        public Order Order { get; set; }
-        public int OrderId { get; set; }
+        public RawMaterial RawMaterial { get; set; }
+        public int RawMaterialId { get; set; }
+        public SupplierOrder SupplierOrder { get; set; }
+        public int SupplierOrderId { get; set; }
         public int Quantity { get; set; }
         public int Discount { get; set; }
     }

@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using PurchaseManager.Business;
+﻿using Microsoft.AspNetCore.Mvc;
 using PurchaseManager.Business.Abstraction;
 using PurchaseManager.Shared.DTO;
 

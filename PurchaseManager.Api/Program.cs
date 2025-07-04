@@ -12,9 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<SupplierDbContext>(options =>
+builder.Services.AddDbContext<PurchaseDbContext>(options =>
 	options.UseSqlServer(
-		builder.Configuration.GetConnectionString("SupplierDbContext"),
+		builder.Configuration.GetConnectionString("PurchaseDbContext"),
 		b => b.MigrationsAssembly("PurchaseManager.Api")
 	)
 );
@@ -34,7 +34,7 @@ using (var scope = app.Services.CreateScope())
 {
 	try
 	{
-		var db = scope.ServiceProvider.GetRequiredService<SupplierDbContext>();
+		var db = scope.ServiceProvider.GetRequiredService<PurchaseDbContext>();
 		db.Database.Migrate();
 	}
 	catch (Exception ex)

@@ -8,7 +8,7 @@
 		public string VATNumber { get; set; }
 		public string TaxCode { get; set; }
 		public string CertifiedEmail { get; set; }
-		public List<CreateProductFromSupplierControllerDto> Products { get; set; }
+		public List<CreateRawMaterialFromSupplierControllerDto> RawMaterials { get; set; }
 
 	}
 
@@ -21,8 +21,8 @@
 		public string VATNumber { get; set; }
 		public string TaxCode { get; set; }
 		public string CertifiedEmail { get; set; }
-		public List<ReadOrderDto> Orders { get; set; }
-		public List<ReadProductDto> Products { get; set; }
+		public List<ReadSupplierOrderDto> SupplierOrders { get; set; }
+		public List<ReadRawMaterialDto> RawMaterials { get; set; }
 
 
 	}

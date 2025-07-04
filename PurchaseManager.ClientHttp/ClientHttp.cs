@@ -8,79 +8,82 @@ namespace PurchaseManager.ClientHttp;
 
 public class ClientHttp(HttpClient httpClient) : IClientHttp
 {
-	#region Order
-	public async Task<string?> CreateOrder(CreateOrderDto orderDto, CancellationToken cancellationToken = default)
+	#region SupplierOrder
+	public async Task<string?> CreateSupplierOrder(CreateSupplierOrderDto SupplierOrderDto, CancellationToken cancellationToken = default)
 	{
-		var response = await httpClient.PostAsync($"Order/CreateOrder", JsonContent.Create(orderDto), cancellationToken);
+		var response = await httpClient.PostAsync($"SupplierOrder/CreateSupplierOrder", JsonContent.Create(SupplierOrderDto), cancellationToken);
 		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<string>(cancellationToken: cancellationToken);
 	}
-	public Task DeleteOrderAsync(int orderId, CancellationToken cancellationToken = default)
-	{
-		throw new NotImplementedException();
-	}
-	public async  Task<List<ReadOrderDto>> GetAllOrdersBySupplierIdAsync(int supplierId, CancellationToken cancellationToken = default)
+	public async  Task<List<ReadSupplierOrderDto>> GetAllSupplierOrdersBySupplierIdAsync(int supplierId, CancellationToken cancellationToken = default)
 	{
 		var queryString = QueryString.Create(new Dictionary<string, string?>() {
-			{ "codiceFiscale", supplierId.ToString(CultureInfo.InvariantCulture) }
+			{ "supplierId", supplierId.ToString(CultureInfo.InvariantCulture) }
 		});
-		var response = await httpClient.GetAsync($"/Soggetto/ReadAllOrder{queryString}", cancellationToken);
-		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<List<ReadOrderDto>>(cancellationToken: cancellationToken) ?? new List<ReadOrderDto>();
+		var response = await httpClient.GetAsync($"/SupplierOrder/ReadAllSupplierOrder{queryString}", cancellationToken);
+		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<List<ReadSupplierOrderDto>>(cancellationToken: cancellationToken) ?? new List<ReadSupplierOrderDto>();
 	}
-	public async  Task<ReadOrderDto?> GetOrderAsync(int orderId, CancellationToken cancellationToken = default)
+	public async  Task<ReadSupplierOrderDto?> GetSupplierOrderAsync(int SupplierOrderId, CancellationToken cancellationToken = default)
 	{
 		var queryString = QueryString.Create(new Dictionary<string, string?>() {
-			{ "orderId", orderId.ToString(CultureInfo.InvariantCulture) }
+			{ "SupplierOrderId", SupplierOrderId.ToString(CultureInfo.InvariantCulture) }
 		});
-		var response = await httpClient.GetAsync($"/Order/ReadOrder{queryString}", cancellationToken);
-		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<ReadOrderDto?>(cancellationToken: cancellationToken);
+		var response = await httpClient.GetAsync($"/SupplierOrder/ReadSupplierOrder{queryString}", cancellationToken);
+		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<ReadSupplierOrderDto?>(cancellationToken: cancellationToken);
 	}
 	#endregion
 
-	#region Product 
-	public async  Task<string?> CreateProduct(IEnumerable<CreateProductDto> payload, CancellationToken cancellationToken = default)
+	#region RawMaterial 
+	public async  Task<string?> CreateRawMaterial(IEnumerable<CreateRawMaterialDto> payload, CancellationToken cancellationToken = default)
 	{
-		var response = await httpClient.PostAsync($"Product/CreateListOfProducts", JsonContent.Create(payload), cancellationToken);
+		var response = await httpClient.PostAsync($"RawMaterial/CreateListOfRawMaterials", JsonContent.Create(payload), cancellationToken);
 		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<string>(cancellationToken: cancellationToken);
 	}
-	public Task DeleteProduct(int productId, CancellationToken cancellationToken = default)
+	public async  Task<string?> DeleteRawMaterial(int RawMaterialId, CancellationToken cancellationToken = default)
 	{
-		throw new NotImplementedException();
+		var response = await httpClient.DeleteAsync($"/RawMaterial/DeleteRawMaterial?RawMaterialId={RawMaterialId}", cancellationToken);
+		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<string>(cancellationToken: cancellationToken);
 	}
-	public async  Task<ReadProductDto?> GetProductListOfSupplier(int SupplierId, CancellationToken cancellationToken = default)
+	public async  Task<List<ReadRawMaterialDto>?> GetRawMaterialListOfSupplier(int SupplierId, CancellationToken cancellationToken = default)
 	{
 		var queryString = QueryString.Create(new Dictionary<string, string?>() {
 			{ "supplierId", SupplierId.ToString(CultureInfo.InvariantCulture) }
 		});
-		var response = await httpClient.GetAsync($"/Product/ReadProductListOfSupplier{queryString}", cancellationToken);
-		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<ReadProductDto?>(cancellationToken: cancellationToken);
+		var response = await httpClient.GetAsync($"/RawMaterial/ReadRawMaterialListOfSupplier{queryString}", cancellationToken);
+		return await response.EnsureSuccessStatusCode()
+								 .Content
+								 .ReadFromJsonAsync<List<ReadRawMaterialDto>>(cancellationToken: cancellationToken)
+								 ?? new List<ReadRawMaterialDto>();
 	}
-	public Task UpdateProductList(UpdateProductDto productDto, CancellationToken cancellationToken = default)
+	public async  Task<string?> UpdateRawMaterialList(UpdateRawMaterialDto RawMaterialDto, CancellationToken cancellationToken = default)
 	{
-		throw new NotImplementedException();
+		var response = await httpClient.PutAsync($"/RawMaterial/UpdateRawMaterial", JsonContent.Create(RawMaterialDto), cancellationToken);
+		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<string>(cancellationToken: cancellationToken	);
 	}
 	#endregion
 
 	#region Supplier
 	public async Task<string?> CreateSupplier(CreateSupplierDto supplierDto, CancellationToken cancellationToken = default)
 	{
-		var response = await httpClient.PostAsync($"Order/CreateOrder", JsonContent.Create(supplierDto), cancellationToken);
+		var response = await httpClient.PostAsync($"Supplier/CreateSupplier", JsonContent.Create(supplierDto), cancellationToken);
 		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<string>(cancellationToken: cancellationToken);
 	}
-	public Task DeleteSupplier(int supplierId, CancellationToken cancellationToken = default)
+	public async Task<string?> DeleteSupplier(int supplierId, CancellationToken cancellationToken = default)
 	{
-		throw new NotImplementedException();
+		var response = await httpClient.DeleteAsync($"/Supplier/DeleteSupplier?supplierId={supplierId}", cancellationToken);
+		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<string>(cancellationToken: cancellationToken);
 	}
 	public async  Task<ReadSupplierDto?> GetSupplier(int supplierId, CancellationToken cancellationToken = default)
 	{
 		var queryString = QueryString.Create(new Dictionary<string, string?>() {
-			{ "orderId", supplierId.ToString(CultureInfo.InvariantCulture) }
+			{ "supplierId", supplierId.ToString(CultureInfo.InvariantCulture) }
 		});
-		var response = await httpClient.GetAsync($"/Order/ReadOrder{queryString}", cancellationToken);
+		var response = await httpClient.GetAsync($"/Supplier/ReadSupplier{queryString}", cancellationToken);
 		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<ReadSupplierDto?>(cancellationToken: cancellationToken);
 	}
-	public Task UpdateSupplier(UpdateSupplierDto supplierDto, CancellationToken cancellationToken = default)
+	public async Task<string?> UpdateSupplier(UpdateSupplierDto supplierDto, CancellationToken cancellationToken = default)
 	{
-		throw new NotImplementedException();
+		var response = await httpClient.PutAsync($"/Supplier/UpdateSupplier", JsonContent.Create(supplierDto), cancellationToken);
+		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<string>(cancellationToken: cancellationToken);
 	}
 	#endregion
 }

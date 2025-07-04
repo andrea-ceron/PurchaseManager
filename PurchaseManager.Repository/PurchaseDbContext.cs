@@ -2,16 +2,16 @@
 using PurchaseManager.Repository.Model;
 namespace PurchaseManager.Repository;
 
-public class SupplierDbContext(DbContextOptions<SupplierDbContext> options): DbContext(options)
+public class PurchaseDbContext(DbContextOptions<PurchaseDbContext> options): DbContext(options)
 {
 	protected override void OnModelCreating(ModelBuilder mb)
 	{
 		mb.Entity<Supplier>().HasKey(s => s.Id);
-		mb.Entity<Supplier>().HasMany(s => s.Orders)
+		mb.Entity<Supplier>().HasMany(s => s.SupplierOrders)
 			.WithOne(o => o.Supplier)
 			.HasForeignKey(o => o.SupplierId)
 			.OnDelete(DeleteBehavior.Restrict);
-		mb.Entity<Supplier>().HasMany(s => s.Products)
+		mb.Entity<Supplier>().HasMany(s => s.RawMaterials)
 			.WithOne(o => o.Supplier)
 			.HasForeignKey(o => o.SupplierId)
 			.OnDelete(DeleteBehavior.Restrict);
@@ -19,26 +19,26 @@ public class SupplierDbContext(DbContextOptions<SupplierDbContext> options): DbC
 			.Property(s => s.Id)
 			.ValueGeneratedOnAdd();
 
-		mb.Entity<Product>().HasKey(p => p.Id);
-		mb.Entity<Product>().HasMany(p => p.ProductOrders)
-					.WithOne(po => po.Product)
-					.HasForeignKey(po => po.ProductId)
+		mb.Entity<RawMaterial>().HasKey(p => p.Id);
+		mb.Entity<RawMaterial>().HasMany(p => p.RawMaterialSupplierOrders)
+					.WithOne(po => po.RawMaterial)
+					.HasForeignKey(po => po.RawMaterialId)
 					.OnDelete(DeleteBehavior.Restrict);
-		mb.Entity<Product>()
+		mb.Entity<RawMaterial>()
 			.Property(s => s.Id)
 			.ValueGeneratedOnAdd();
 
-		mb.Entity<Order>().HasKey(o => o.Id);
-		mb.Entity<Order>().HasMany(o => o.ProductOrder)
-			.WithOne(po => po.Order)
-			.HasForeignKey(po => po.OrderId)
+		mb.Entity<SupplierOrder>().HasKey(o => o.Id);
+		mb.Entity<SupplierOrder>().HasMany(o => o.RawMaterialSupplierOrder)
+			.WithOne(po => po.SupplierOrder)
+			.HasForeignKey(po => po.SupplierOrderId)
 			.OnDelete(DeleteBehavior.Restrict);
-		mb.Entity<Order>()
+		mb.Entity<SupplierOrder>()
 			.Property(s => s.Id)
 			.ValueGeneratedOnAdd();
 
-		mb.Entity<ProductOrder>().HasKey(s => s.Id);
-		mb.Entity<ProductOrder>()
+		mb.Entity<RawMaterialSupplierOrder>().HasKey(s => s.Id);
+		mb.Entity<RawMaterialSupplierOrder>()
 			.Property(s => s.Id)
 			.ValueGeneratedOnAdd();
 
@@ -47,9 +47,9 @@ public class SupplierDbContext(DbContextOptions<SupplierDbContext> options): DbC
 		base.OnModelCreating(mb);
 	}
 	public DbSet<Supplier> Suppliers { get; set; }
-	public DbSet<Order> Orders { get; set; }
-	public DbSet<Product> Products { get; set; }
-	public DbSet<ProductOrder> ProductOrders { get; set; }
+	public DbSet<SupplierOrder> SupplierOrders { get; set; }
+	public DbSet<RawMaterial> RawMaterials { get; set; }
+	public DbSet<RawMaterialSupplierOrder> RawMaterialSupplierOrders { get; set; }
 	public DbSet<TransactionalOutbox> TransactionalOutboxes { get; set; }
 
 

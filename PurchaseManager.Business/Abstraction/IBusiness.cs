@@ -11,22 +11,25 @@ namespace PurchaseManager.Business.Abstraction
 {
     public interface IBusiness
     {
-        public Task CreateSupplierAsync(CreateSupplierDto supplier, CancellationToken ct = default);
+        #region Supplier
+        public Task CreateSupplierAsync(CreateSupplierDto supplierDto, CancellationToken ct = default);
         public Task<ReadSupplierDto> GetSupplierAsync(int supplierId, CancellationToken ct = default);
-
         public Task UpdateSupplierAsync(UpdateSupplierDto supplierDto, CancellationToken ct = default);
-
 		public Task DeleteSupplierAsync(int supplierId, CancellationToken ct = default);
-        public Task CreateOrderAsync(CreateOrderDto createOrderDto, CancellationToken ct = default);
-        public Task DeleteOrderAsync(int OrderId, CancellationToken ct = default);
-        public Task<ReadOrderDto> GetOrderByIdAsync(int OrderId, CancellationToken ct = default);
+        #endregion
 
-        public Task<List<ReadOrderDto>?> GetAllOrdersBySupplierIdAsync(int SupplierId, CancellationToken ct = default);
+        #region SupplierOrder 
+        public Task<List<UpdateRawMaterialQuantity>> CreateSupplierOrderAsync(CreateSupplierOrderDto createSupplierOrderDto, CancellationToken ct = default);
+        public Task<ReadSupplierOrderDto> GetSupplierOrderByIdAsync(int SupplierOrderId, CancellationToken ct = default);
+        public Task<List<ReadSupplierOrderDto>?> GetAllSupplierOrdersBySupplierIdAsync(int SupplierId, CancellationToken ct = default);
+        #endregion
 
-        public Task CreateListOfProductsAsync(IEnumerable<CreateProductDto> productDto, CancellationToken ct = default);
-        public Task<List<ReadProductDto>> GetProductListBySupplierId(int SupplierId, CancellationToken ct = default);
-        public Task UpdateProductAsync(UpdateProductDto productDto, CancellationToken ct = default);
-		public Task DeleteProductAsync(int productId, CancellationToken ct = default);
+        #region RawMaterial
+        public Task CreateListOfRawMaterialsAsync(IEnumerable<CreateRawMaterialDto> RawMaterialDto, CancellationToken ct = default);
+        public Task<List<ReadRawMaterialDto>> GetRawMaterialListBySupplierId(int SupplierId, CancellationToken ct = default);
+        public Task UpdateRawMaterialAsync(UpdateRawMaterialDto RawMaterialDto, CancellationToken ct = default);
+		public Task DeleteRawMaterialAsync(int RawMaterialId, CancellationToken ct = default);
+        #endregion
 
-	}
+    }
 }

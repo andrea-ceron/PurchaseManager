@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using PurchaseManager.Business.Abstraction;
 using PurchaseManager.Repository.Abstraction;
-using PurchaseManager.Repository.Model;
 using Utility.Kafka.Abstraction.Clients;
 using Utility.Kafka.ExceptionManager;
 
@@ -45,14 +44,14 @@ public class ProducerServiceWithSubscription(
 		{
 			string topic = elem.Table switch
 			{
-				nameof(Product) => optionTopics.Value.RawMaterial,
+				nameof(RawMaterial) => optionTopics.Value.RawMaterial,
 				_ => throw new ArgumentOutOfRangeException($"La tabella {elem.Table} non è prevista come topic nel Producer")
 			};
 			try
 			{
 				await producerClient.ProduceAsync(topic, elem.Id.ToString(), elem.Message, null, cancellationToken);
 				await repository.DeleteTransactionalOutboxAsync(elem.Id, cancellationToken);
-				await repository.SaveChanges(cancellationToken);
+				await repository.SaveChangesAsync(cancellationToken);
 			}
 			catch (Exception ex)
 			{
