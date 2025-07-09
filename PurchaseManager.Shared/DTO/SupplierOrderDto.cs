@@ -24,6 +24,6 @@ namespace PurchaseManager.Shared.DTO
 	public class CreateSupplierOrderDto
 	{
 		public int SupplierId { get; set; }
-		public List<CreateRawMaterialSupplierOrderFromSupplierOrderControllerDto> RawMaterialSupplierOrder { get; set; }
+		public List<CreateRawMaterialSupplierOrderFromSupplierOrderControllerDto> RawMaterialSupplierOrder { get; set; } = new();
 	}
 }

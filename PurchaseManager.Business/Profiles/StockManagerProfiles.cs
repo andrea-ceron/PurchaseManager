@@ -39,6 +39,8 @@ public class InputFileProfile : Profile
 		CreateMap<UpdateRawMaterialDto, RawMaterial>();
 		CreateMap<CreateRawMaterialFromSupplierControllerDto, RawMaterial>();
 		CreateMap<RawMaterial, RawMaterialDtoForKafka>();
+		CreateMap<UpdateRawMaterialDto, RawMaterialDtoForKafka>();
+		CreateMap<ReadRawMaterialDto, RawMaterialDtoForKafka>();
 
 
 

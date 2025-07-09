@@ -6,13 +6,13 @@ using System.Net.Http.Json;
 
 namespace PurchaseManager.ClientHttp;
 
-public class ClientHttp(HttpClient httpClient) : IClientHttp
+public class PurchaseManagerClientHttp(HttpClient httpClient) : IPurchaseManagerClientHttp
 {
 	#region SupplierOrder
-	public async Task<string?> CreateSupplierOrder(CreateSupplierOrderDto SupplierOrderDto, CancellationToken cancellationToken = default)
+	public async Task<List<UpdateRawMaterialQuantity>?> CreateSupplierOrder(CreateSupplierOrderDto SupplierOrderDto, CancellationToken cancellationToken = default)
 	{
 		var response = await httpClient.PostAsync($"SupplierOrder/CreateSupplierOrder", JsonContent.Create(SupplierOrderDto), cancellationToken);
-		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<string>(cancellationToken: cancellationToken);
+		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<List<UpdateRawMaterialQuantity>>(cancellationToken: cancellationToken);
 	}
 	public async  Task<List<ReadSupplierOrderDto>> GetAllSupplierOrdersBySupplierIdAsync(int supplierId, CancellationToken cancellationToken = default)
 	{

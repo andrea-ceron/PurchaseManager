@@ -13,7 +13,7 @@ public class SupplierOrderController(IBusiness business, ILogger<SupplierOrderCo
 	private readonly IBusiness _business = business;
 	private readonly ILogger<SupplierOrderController> _logger = logger;
 
-	[HttpPost(Name = "CreateSupplierSupplierOrder")]
+	[HttpPost(Name = "CreateSupplierOrder")]
 	public async Task<ActionResult<List<UpdateRawMaterialQuantity>>> CreateSupplierOrderAsync(CreateSupplierOrderDto payload)
 	{
 		var res = await _business.CreateSupplierOrderAsync(payload);

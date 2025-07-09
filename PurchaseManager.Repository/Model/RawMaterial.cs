@@ -6,7 +6,6 @@
 	public int SupplierRawMaterialCode { get; set; }
 	public decimal Price { get; set; }
 	public int MinQuantityForSupplierOrder { get; set; }
-	public int AvailableQuantity { get; set; }
 	public List<RawMaterialSupplierOrder>? RawMaterialSupplierOrders { get; set; }
 	public int SupplierId { get; set; }
 	public Supplier Supplier { get; set; }

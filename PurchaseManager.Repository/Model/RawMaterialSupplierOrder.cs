@@ -14,6 +14,5 @@ namespace PurchaseManager.Repository.Model
         public SupplierOrder SupplierOrder { get; set; }
         public int SupplierOrderId { get; set; }
         public int Quantity { get; set; }
-        public int Discount { get; set; }
     }
 }

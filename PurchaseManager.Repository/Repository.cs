@@ -103,7 +103,7 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 	}
 	public async Task<RawMaterial?> GetRawMaterialByIdAsync(int rawMaterialId, CancellationToken ct = default)
 	{
-		return await dbContext.RawMaterials.Where(p => p.Id == rawMaterialId).AsNoTracking().SingleOrDefaultAsync(ct);
+		return await dbContext.RawMaterials.Where(p => p.Id == rawMaterialId).SingleOrDefaultAsync(ct);
 	}
 	public async Task<RawMaterial?> UpdateRawMaterialAsync(RawMaterial model, CancellationToken ct = default)
 	{
@@ -130,6 +130,7 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 	{
 		dbContext.RawMaterialSupplierOrders.Remove(rawMaterialSupplierOrder);
 	}
+
 
 	public async Task<List<RawMaterialSupplierOrder>> GetAllRawMaterialSupplierOrderBySupplierOrderIdAsync(int SupplierOrderId, CancellationToken ct = default)
 	{

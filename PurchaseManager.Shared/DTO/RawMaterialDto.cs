@@ -13,7 +13,6 @@ namespace PurchaseManager.Shared.DTO
 		public int? SupplierId { get; set; }
 
 		public int MinQuantityForSupplierOrder { get; set; }
-		public int AvailableQuantity { get; set; }
 		public string RawMaterialName { get; set; } = string.Empty;
 
 
@@ -24,7 +23,6 @@ namespace PurchaseManager.Shared.DTO
 		public int SupplierRawMaterialCode { get; set; }
 		public decimal Price { get; set; }
 		public int MinQuantityForSupplierOrder { get; set; }
-		public int AvailableQuantity { get; set; }
 		public string RawMaterialName { get; set; } = string.Empty;
 
 
@@ -38,7 +36,6 @@ namespace PurchaseManager.Shared.DTO
 		public int MinQuantityForSupplierOrder { get; set; }
 		public List<ReadRawMaterialSupplierOrderDto> RawMaterialSupplierOrders { get; set; }
 		public int SupplierId { get; set; }
-		public int AvailableQuantity { get; set; }
 		public string RawMaterialName { get; set; } = string.Empty;
 
 	}
@@ -51,14 +48,13 @@ namespace PurchaseManager.Shared.DTO
 		public decimal? Price { get; set; }
 		public int SupplierId { get; set; }
 		public int MinQuantityForSupplierOrder { get; set; }
-		public int AvailableQuantity { get; set; }
+		public string RawMaterialName { get; set; } = string.Empty;
 
 	}
 
 	public class RawMaterialDtoForKafka
 	{
 		public int Id { get; set; }
-		public int AvailableQuantity { get; set; }
 		public int SupplierId { get; set; }
 		public string RawMaterialName { get; set; } = string.Empty;
 	}

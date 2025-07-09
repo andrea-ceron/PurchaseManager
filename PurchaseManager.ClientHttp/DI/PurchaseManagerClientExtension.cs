@@ -11,7 +11,7 @@ public static class PurchaseManagerClientExtension
 		IConfigurationSection section = config.GetSection(PurchaseManagerClientOption.SectionName);
 		PurchaseManagerClientOption options = section.Get<PurchaseManagerClientOption>() ?? new();
 
-		services.AddHttpClient<IClientHttp, ClientHttp>(o => {
+		services.AddHttpClient<IPurchaseManagerClientHttp, PurchaseManagerClientHttp>(o => {
 			o.BaseAddress = new Uri(options.BaseAddress);
 		}).ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
 		{

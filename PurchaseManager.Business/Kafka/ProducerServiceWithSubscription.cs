@@ -5,6 +5,8 @@ using PurchaseManager.Business.Abstraction;
 using PurchaseManager.Repository.Abstraction;
 using Utility.Kafka.Abstraction.Clients;
 using Utility.Kafka.ExceptionManager;
+using PurchaseManager.Shared.DTO;
+using Microsoft.Extensions.Logging;
 
 namespace PurchaseManager.Business.Kafka;
 
@@ -14,7 +16,8 @@ public class ProducerServiceWithSubscription(
 	IOptions<KafkaTopicsOutput> optionTopics
 	, IServiceScopeFactory serviceScopeFactory
 	, IProducerClient<string, string> producerClient
-	, IRawMaterialsObservable observable
+	, IRawMaterialsObservable observable,
+	ILogger<ProducerServiceWithSubscription> logger
 
 	)
 	: Utility.Kafka.Services.ProducerServiceWithSubscription(serviceProvider, errormanager)
@@ -44,18 +47,25 @@ public class ProducerServiceWithSubscription(
 		{
 			string topic = elem.Table switch
 			{
-				nameof(RawMaterial) => optionTopics.Value.RawMaterial,
+				nameof(RawMaterialDtoForKafka) => optionTopics.Value.RawMaterial,
 				_ => throw new ArgumentOutOfRangeException($"La tabella {elem.Table} non è prevista come topic nel Producer")
 			};
 			try
 			{
+				logger.LogInformation($"Inizio produzione, {elem.Id.ToString()}, {elem.Message}");
+
 				await producerClient.ProduceAsync(topic, elem.Id.ToString(), elem.Message, null, cancellationToken);
+				logger.LogInformation($"Eseguita produzione, {elem.Id.ToString()}, {elem.Message}");
+
 				await repository.DeleteTransactionalOutboxAsync(elem.Id, cancellationToken);
+				logger.LogInformation($"Eseguita eliminazione, {elem.Id.ToString()}, {elem.Message}");
+
 				await repository.SaveChangesAsync(cancellationToken);
+				logger.LogInformation("Produzione del messaggio per il topic {topic} con id {id}", topic, elem.Id);
 			}
 			catch (Exception ex)
 			{
-				//logger.LogError(ex, "Errore durante la produzione del messaggio per il topic {topic} con id {id}", topic, elem.Id);
+				logger.LogError(ex, "Errore durante la produzione del messaggio per il topic {topic} con id {id}", topic, elem.Id);
 				continue;
 			}
 

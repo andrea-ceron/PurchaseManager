@@ -26,8 +26,8 @@ namespace PurchaseManager.Business.Abstraction
 
         #region RawMaterial
         public Task CreateListOfRawMaterialsAsync(IEnumerable<CreateRawMaterialDto> RawMaterialDto, CancellationToken ct = default);
-        public Task<List<ReadRawMaterialDto>> GetRawMaterialListBySupplierId(int SupplierId, CancellationToken ct = default);
-        public Task UpdateRawMaterialAsync(UpdateRawMaterialDto RawMaterialDto, CancellationToken ct = default);
+        public Task<ReadRawMaterialDto> GetRawMaterialById(int rawMaterialId, CancellationToken ct = default);
+		public Task UpdateRawMaterialAsync(UpdateRawMaterialDto RawMaterialDto, CancellationToken ct = default);
 		public Task DeleteRawMaterialAsync(int RawMaterialId, CancellationToken ct = default);
         #endregion
 

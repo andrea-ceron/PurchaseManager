@@ -21,12 +21,12 @@ public class RawMaterialController(IBusiness business, ILogger<RawMaterialContro
 		return Ok();
 	}
 
-	[HttpGet(Name = "ReadRawMaterialListOfSupplier")]
-	public async Task<ActionResult<ReadRawMaterialDto>> GetRawMaterialListOfSupplier(int SupplierId)
+	[HttpGet(Name = "ReadRawMaterialById")]
+	public async Task<ActionResult<ReadRawMaterialDto>> GetRawMaterialById(int rawMaterialId)
 	{
-		List<ReadRawMaterialDto>? RawMaterialListDto = await _business.GetRawMaterialListBySupplierId(SupplierId);
-		if (RawMaterialListDto == null) return NotFound("Supplier non trovato");
-		return Ok(RawMaterialListDto);
+		ReadRawMaterialDto? RawMaterialDto = await _business.GetRawMaterialById(rawMaterialId);
+		if (RawMaterialDto == null) return NotFound("RawMaterial non trovato");
+		return Ok(RawMaterialDto);
 	}
 
 	[HttpPut(Name = "UpdateRawMaterialList")]
