@@ -29,7 +29,9 @@ namespace PurchaseManager.Business.Abstraction
         public Task<ReadRawMaterialDto> GetRawMaterialById(int rawMaterialId, CancellationToken ct = default);
 		public Task UpdateRawMaterialAsync(UpdateRawMaterialDto RawMaterialDto, CancellationToken ct = default);
 		public Task DeleteRawMaterialAsync(int RawMaterialId, CancellationToken ct = default);
-        #endregion
+        public Task CreateRawMaterialsWithoutNotificationAsync(RawMaterial previousState, CancellationToken ct = default);
 
-    }
+		#endregion
+
+	}
 }

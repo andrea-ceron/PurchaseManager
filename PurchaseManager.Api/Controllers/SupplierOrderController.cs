@@ -25,15 +25,10 @@ public class SupplierOrderController(IBusiness business, ILogger<SupplierOrderCo
 		return Ok(res);
 	}
 
-	[HttpGet(Name = "ReadSupplierOrder")]
-	public async Task<ActionResult> GetrSupplierOrderAsync(int SupplierSupplierOrderId)
-	{
-		ReadSupplierOrderDto? SupplierOrder = await _business.GetSupplierOrderByIdAsync(SupplierSupplierOrderId);
-		return Ok(new JsonResult(SupplierOrder));
-	}
+
 
 	[HttpGet(Name = "ReadAllSupplierOrder")]
-	public async Task<ActionResult<List<ReadSupplierOrderDto>>> GetAllSupplierOrdersBySupplierIdAsync(int supplierId)
+	public async Task<ActionResult<List<ReadSupplierOrderDto>>> ReadAllSupplierOrder(int supplierId)
 	{
 		List<ReadSupplierOrderDto>? SupplierOrderList = await _business.GetAllSupplierOrdersBySupplierIdAsync(supplierId);
 		if(SupplierOrderList == null || SupplierOrderList.Count == 0)

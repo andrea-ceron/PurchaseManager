@@ -20,10 +20,10 @@ public class SupplierController(IBusiness business, ILogger<SupplierController> 
 		return Ok();
 	}
 
-	[HttpGet(Name = "ReadSupplier")]
-	public async Task<ActionResult<ReadSupplierDto>> GetSupplier(int SupplierId)
+	[HttpGet(Name = "ReadSupplierReadSupplier")]
+	public async Task<ActionResult<ReadSupplierDto>> ReadSupplier(int supplierId)
 	{
-		ReadSupplierDto? Supplier = await _business.GetSupplierAsync(SupplierId);
+		ReadSupplierDto? Supplier = await _business.GetSupplierAsync(supplierId);
 		if (Supplier == null) return NotFound("Supplier non trovato");
 		return Ok(Supplier);
 	}

@@ -14,7 +14,7 @@ public class RawMaterialController(IBusiness business, ILogger<RawMaterialContro
 
 
 
-	[HttpPost(Name = "CreateListOfRawMaterials")]
+	[HttpPost(Name = "CreateRawMaterial")]
 	public async Task<ActionResult> CreateRawMaterial(IEnumerable<CreateRawMaterialDto> payload)
 	{
 		await _business.CreateListOfRawMaterialsAsync(payload);
@@ -22,15 +22,15 @@ public class RawMaterialController(IBusiness business, ILogger<RawMaterialContro
 	}
 
 	[HttpGet(Name = "ReadRawMaterialById")]
-	public async Task<ActionResult<ReadRawMaterialDto>> GetRawMaterialById(int rawMaterialId)
+	public async Task<ActionResult<ReadRawMaterialDto>> ReadRawMaterialById(int rawMaterialId)
 	{
 		ReadRawMaterialDto? RawMaterialDto = await _business.GetRawMaterialById(rawMaterialId);
 		if (RawMaterialDto == null) return NotFound("RawMaterial non trovato");
 		return Ok(RawMaterialDto);
 	}
 
-	[HttpPut(Name = "UpdateRawMaterialList")]
-	public async Task<ActionResult> UpdateRawMaterialList(UpdateRawMaterialDto payload)
+	[HttpPut(Name = "UpdateRawMaterial")]
+	public async Task<ActionResult> UpdateRawMaterial(UpdateRawMaterialDto payload)
 	{
 		await _business.UpdateRawMaterialAsync(payload);
 		return Ok();

@@ -109,7 +109,7 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 	{
 		RawMaterial? RawMaterial = await GetRawMaterialByIdAsync(model.Id, ct);
 		if (RawMaterial == null) return null;
-		dbContext.RawMaterials.Update(model);
+		dbContext.Entry(RawMaterial).CurrentValues.SetValues(model); 
 		return model;
 	}
 	public async Task DeleteAllRawMaterialsBySupplierIdAsync(int supplierId, CancellationToken ct = default)
