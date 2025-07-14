@@ -1,13 +1,11 @@
-﻿
-using PurchaseManager.Shared.DTO;
-
+﻿using PurchaseManager.Shared.DTO;
 namespace PurchaseManager.ClientHttp.Abstraction;
 
 public interface IPurchaseManagerClientHttp
 {
-	Task<string?> CreateSupplier(CreateSupplierDto supplierDto, CancellationToken cancellationToken = default);
-    Task<ReadSupplierDto?> GetSupplier(int supplierId, CancellationToken cancellationToken = default);
-    Task<string?> UpdateSupplier(UpdateSupplierDto supplierDto, CancellationToken cancellationToken = default);
+	Task<ReadSupplierDto> CreateSupplier(CreateSupplierDto supplierDto, CancellationToken cancellationToken = default);
+    Task<ReadSupplierDto> GetSupplier(int supplierId, CancellationToken cancellationToken = default);
+    Task<ReadSupplierDto> UpdateSupplier(UpdateSupplierDto supplierDto, CancellationToken cancellationToken = default);
 	Task<string?> DeleteSupplier(int supplierId, CancellationToken cancellationToken = default);
 
 	Task<string?> CreateRawMaterial(IEnumerable<CreateRawMaterialDto> payload, CancellationToken cancellationToken = default);

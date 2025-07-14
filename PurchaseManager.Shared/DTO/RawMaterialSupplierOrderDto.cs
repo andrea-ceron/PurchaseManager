@@ -1,7 +1,6 @@
 ﻿namespace PurchaseManager.Shared.DTO;
-
-    public class CreateRawMaterialSupplierOrderDto
-    {
+public class CreateRawMaterialSupplierOrderDto
+{
 	public int RawMaterialId { get; set; }
 	public int? SupplierOrderId { get; set; } = null;
 	public int Quantity { get; set; }
@@ -20,6 +19,7 @@ public class UpdateRawMaterialSupplierOrderDto
 	public UpdateSupplierOrderDto SupplierOrder { get; set; }
 	public int Quantity { get; set; }
 }
+
 public class ReadRawMaterialSupplierOrderDto
 {
 	public int Id { get; set; }

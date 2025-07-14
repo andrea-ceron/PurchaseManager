@@ -14,7 +14,7 @@
     <PackageReference Include="StockManager.ClientHttp" Version="3.0.2" />
     <PackageReference Include="StockManager.Shared" Version="2.0.2" />
     <PackageReference Include="System.Reactive" Version="6.0.1" />
-    <PackageReference Include="Utility.Kafka" Version="1.2.8" />
+    <PackageReference Include="Utility.Kafka" Version="2.0.1" />
   </ItemGroup>
 
   <ItemGroup>

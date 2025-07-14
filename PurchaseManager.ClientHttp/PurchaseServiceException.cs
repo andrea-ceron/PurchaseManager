@@ -1,14 +1,7 @@
 ﻿namespace PurchaseManager.ClientHttp;
 
-public class PurchaseServiceException : Exception
+public class PurchaseServiceException(int statusCode, string? responseContent) : Exception($"Chiamata a PurchaseService fallita con StatusCode {statusCode}")
 {
-	public int StatusCode { get; }
-	public string? ResponseContent { get; }
-
-	public PurchaseServiceException(int statusCode, string? responseContent)
-		: base($"Chiamata a PurchaseService fallita con StatusCode {statusCode}")
-	{
-		StatusCode = statusCode;
-		ResponseContent = responseContent;
-	}
+	public int StatusCode { get; } = statusCode;
+	public string? ResponseContent { get; } = responseContent;
 }

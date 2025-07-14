@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PurchaseManager.ClientHttp.Abstraction;
-
 namespace PurchaseManager.ClientHttp.DI;
 
 public static class PurchaseManagerClientExtension
@@ -10,7 +9,6 @@ public static class PurchaseManagerClientExtension
 	{
 		IConfigurationSection section = config.GetSection(PurchaseManagerClientOption.SectionName);
 		PurchaseManagerClientOption options = section.Get<PurchaseManagerClientOption>() ?? new();
-
 		services.AddHttpClient<IPurchaseManagerClientHttp, PurchaseManagerClientHttp>(o => {
 			o.BaseAddress = new Uri(options.BaseAddress);
 		}).ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler

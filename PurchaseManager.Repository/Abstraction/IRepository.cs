@@ -1,12 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore;
-using PurchaseManager.Repository.Model;
-using PurchaseManager.Repository.Model;
+﻿using PurchaseManager.Repository.Model;
 
 namespace PurchaseManager.Repository.Abstraction;
 
-    public interface IRepository
-    {
+public interface IRepository
+{
 	#region Supplier
 	public Task<Supplier> GetSupplierByIdAsync(int supplierId, CancellationToken ct = default);
 	public Task<Supplier> CreateSupplierAsync(Supplier model, CancellationToken ct = default);
@@ -17,8 +14,8 @@ namespace PurchaseManager.Repository.Abstraction;
 
 	#region SupplierOrder
 	public Task<SupplierOrder> CreateSupplierOrderAsync(SupplierOrder model, CancellationToken ct = default);
-	public Task<SupplierOrder?> GetSupplierOrderByIdAsync(int SupplierOrderId, CancellationToken ct = default);
-	public Task<List<SupplierOrder>>? GetSupplierOrderBySupplierIdAsync(int supplierId, CancellationToken ct = default);
+	public Task<SupplierOrder> GetSupplierOrderByIdAsync(int SupplierOrderId, CancellationToken ct = default);
+	public Task<List<SupplierOrder>> GetSupplierOrdersBySupplierIdAsync(int supplierId, CancellationToken ct = default);
 	public Task DeleteSupplierOrderAsync(int SupplierOrderId, CancellationToken ct = default);
 	public Task DeleteAllSupplierOrdersBySupplierIdAsync(int supplierId, CancellationToken ct = default);
 
@@ -47,7 +44,7 @@ namespace PurchaseManager.Repository.Abstraction;
 	#region TransactionalOutbox
 	public Task<IEnumerable<TransactionalOutbox>> GetAllTransactionalOutbox(CancellationToken ct = default);
 	Task DeleteTransactionalOutboxAsync(long id, CancellationToken cancellationToken = default);
-	public Task<TransactionalOutbox?> GetTransactionalOutboxByKeyAsync(long id, CancellationToken cancellationToken = default);
+	public Task<TransactionalOutbox> GetTransactionalOutboxByKeyAsync(long id, CancellationToken cancellationToken = default);
 	public Task InsertTransactionalOutboxAsync(TransactionalOutbox transactionalOutbox, CancellationToken cancellationToken = default);
 
 	#endregion

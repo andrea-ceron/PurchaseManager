@@ -14,32 +14,31 @@ public class SupplierController(IBusiness business, ILogger<SupplierController> 
 
 
 	[HttpPost(Name = "CreateSupplier")]
-	public async Task<ActionResult> CreateSupplier(CreateSupplierDto payload)
+	public async Task<ActionResult<ReadSupplierDto>> CreateSupplier(CreateSupplierDto payload)
 	{
-		await _business.CreateSupplierAsync(payload);
-		return Ok();
+		var supplierCreated = await _business.CreateSupplierAsync(payload);
+		return Ok(supplierCreated);
 	}
 
 	[HttpGet(Name = "ReadSupplierReadSupplier")]
 	public async Task<ActionResult<ReadSupplierDto>> ReadSupplier(int supplierId)
 	{
 		ReadSupplierDto? Supplier = await _business.GetSupplierAsync(supplierId);
-		if (Supplier == null) return NotFound("Supplier non trovato");
 		return Ok(Supplier);
 	}
 
 	[HttpPut(Name = "UpdateSupplier")]
-	public async Task<ActionResult> UpdateSupplier(UpdateSupplierDto payload)
+	public async Task<ActionResult<ReadSupplierDto>> UpdateSupplier(UpdateSupplierDto payload)
 	{
-		await _business.UpdateSupplierAsync(payload);
-		return Ok();
+		var SupplierUpdated = await _business.UpdateSupplierAsync(payload);
+		return Ok(SupplierUpdated);
 	}
 
 	[HttpDelete(Name = "DeleteSupplier")]
-	public async Task<ActionResult> DeleteSupplier(int SupplierId)
+	public async Task<ActionResult<string>> DeleteSupplier(int SupplierId)
 	{
 		await _business.DeleteSupplierAsync(SupplierId);
-		return Ok();
+		return Ok("Eliminazione del Fornitore Eseguita con successo");
 	}
 
 }

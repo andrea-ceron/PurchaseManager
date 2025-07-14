@@ -7,6 +7,7 @@ using PurchaseManager.Repository.Model;
 using PurchaseManager.Shared.DTO;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
+using System.Linq.Expressions;
 
 namespace PurchaseManager.Business;
 
@@ -21,7 +22,7 @@ public class Business(IRepository repository, IMapper mapper, ILogger<Business> 
 		logger.LogDebug("SupplierOrder ricevuto: {SupplierOrder}", SupplierOrder);
 		List<RawMaterialSupplierOrder> RawMaterialSupplierOrderList = mapper.Map<List<RawMaterialSupplierOrder>>(SupplierOrder.RawMaterialSupplierOrder);
 		SupplierOrder.RawMaterialSupplierOrder = new List<RawMaterialSupplierOrder>();
-		var result = await repository.CreateTransaction(async () =>
+		return await repository.CreateTransaction(async () =>
 		{
 			List<UpdateRawMaterialQuantity> payload = new();
 
@@ -40,103 +41,84 @@ public class Business(IRepository repository, IMapper mapper, ILogger<Business> 
 				if (readRawMaterial.MinQuantityForSupplierOrder > RawMaterialSupplierOrder.Quantity)
 				{
 					logger.LogInformation($"La quantità minima per l'ordine del fornitore è {readRawMaterial.MinQuantityForSupplierOrder}.");
-
 					RawMaterialSupplierOrder.Quantity = readRawMaterial.MinQuantityForSupplierOrder;
 				}
-
 				RawMaterialSupplierOrder.SupplierOrderId = newSupplierOrder.Id;
 				RawMaterialSupplierOrder.SupplierOrder = newSupplierOrder;
-
 				await repository.CreateRawMaterialSupplierOrderAsync(RawMaterialSupplierOrder, ct);
 				newSupplierOrder.RawMaterialSupplierOrder.Add(RawMaterialSupplierOrder);
-
-
 				payload.Add(new UpdateRawMaterialQuantity
 				{
 					Id = readRawMaterial.Id,
 					QuantityToAdd = RawMaterialSupplierOrder.Quantity
 				});
-
 			}
 			await repository.SaveChangesAsync(ct);
-
 			return payload;
 		});
-		return result;
 	}
-
-	public async Task<List<ReadSupplierOrderDto>?> GetAllSupplierOrdersBySupplierIdAsync(int SupplierId, CancellationToken ct = default)
+	public async Task<List<ReadSupplierOrderDto>> GetAllSupplierOrdersBySupplierIdAsync(int SupplierId, CancellationToken ct = default)
 	{
-		List<SupplierOrder> ListOfSupplierOrder = await repository.GetSupplierOrderBySupplierIdAsync(SupplierId, ct);
-		if (ListOfSupplierOrder == null) throw new ExceptionHandler("Nessun Ordine trovato", 404);
+		List<SupplierOrder>? ListOfSupplierOrder = await repository.GetSupplierOrdersBySupplierIdAsync(SupplierId, ct);
 		List<ReadSupplierOrderDto> SupplierOrderList = mapper.Map<List<ReadSupplierOrderDto>>(ListOfSupplierOrder);
 		return SupplierOrderList;
 	}
 	public async Task<ReadSupplierOrderDto> GetSupplierOrderByIdAsync(int SupplierOrderId, CancellationToken ct = default)
 	{
 		var SupplierOrder =  await repository.GetSupplierOrderByIdAsync(SupplierOrderId, ct);
-		if (SupplierOrder == null ) throw new ExceptionHandler("Nessun Ordine trovato", 404);
 		ReadSupplierOrderDto SupplierOrderdto = mapper.Map<ReadSupplierOrderDto>(SupplierOrder);
 		return SupplierOrderdto;
 	}
 	#endregion
 
 	#region Supplier
-	public async Task CreateSupplierAsync(CreateSupplierDto supplierDto, CancellationToken ct = default)
+	public async Task<ReadSupplierDto> CreateSupplierAsync(CreateSupplierDto supplierDto, CancellationToken ct = default)
 	{
+
 		Supplier supplier = mapper.Map<Supplier>(supplierDto);
 		var supplierRes = await repository.CreateSupplierAsync(supplier, ct);
 		await repository.SaveChangesAsync(ct);
-		logger.LogInformation("Supplier created with ID: {supplierRes}", supplierRes.Id);
+		ReadSupplierDto readSupplierDto = mapper.Map<ReadSupplierDto>(supplierRes);
+		logger.LogInformation("Supplier creato con ID: {supplierRes}", supplierRes.Id);
+		return readSupplierDto;
 	}
 	public async Task DeleteSupplierAsync(int supplierId, CancellationToken ct = default)
 	{
+		List<SupplierOrder> SupplierOrderList = await repository.GetSupplierOrdersBySupplierIdAsync(supplierId, ct);
 		await repository.CreateTransaction(async () =>
 		{
-			List<SupplierOrder>? SupplierOrderList = await repository.GetSupplierOrderBySupplierIdAsync(supplierId, ct);
-
 			foreach (var SupplierOrder in SupplierOrderList)
 			{
 				await repository.DeleteAllRawMaterialSupplierOrdersBySupplierOrderIdAsync(SupplierOrder.Id, ct);
 			}
-			await repository.SaveChangesAsync(ct);
-
 			await repository.DeleteAllRawMaterialsBySupplierIdAsync(supplierId, ct);
-			await repository.SaveChangesAsync(ct);
-
 			await repository.DeleteAllSupplierOrdersBySupplierIdAsync(supplierId, ct);
-			await repository.SaveChangesAsync(ct);
-
 			await repository.DeleteSupplierAsync(supplierId, ct);
 			await repository.SaveChangesAsync(ct);
-
 		});
 	}
 	public async Task<ReadSupplierDto> GetSupplierAsync(int supplierId, CancellationToken ct = default)
 	{
-		
-		Supplier? supplier =  await repository.GetSupplierByIdAsync(supplierId, ct);
-		if(supplier == null)
-		{
-			throw new ExceptionHandler("fornitore non trovato", 404);
-		}
+		Supplier? supplier = await repository.GetSupplierByIdAsync(supplierId, ct);
 		ReadSupplierDto supplierDto = mapper.Map<ReadSupplierDto>(supplier);
 		return supplierDto;
 	}
-	public async Task UpdateSupplierAsync(UpdateSupplierDto supplierDto, CancellationToken ct = default)
+	public async Task<ReadSupplierDto> UpdateSupplierAsync(UpdateSupplierDto supplierDto, CancellationToken ct = default)
 	{
+
 		var model = mapper.Map<Supplier>(supplierDto);
 		var updatedSupplier = await repository.UpdateSupplierAsync(model, ct);
-		if(updatedSupplier == null)
-			throw new ExceptionHandler("Supplier not updated", 400);
 		await repository.SaveChangesAsync(ct);
+		ReadSupplierDto readSupplierDto = mapper.Map<ReadSupplierDto>(updatedSupplier);
+		return readSupplierDto;
 	}
 	#endregion
 
 	#region RawMaterial
-	public async Task CreateListOfRawMaterialsAsync(IEnumerable<CreateRawMaterialDto> RawMaterialDto, CancellationToken ct = default)
+	public async Task<List<ReadRawMaterialDto>> CreateListOfRawMaterialsAsync(IEnumerable<CreateRawMaterialDto> RawMaterialDto, CancellationToken ct = default)
 	{
 		List<RawMaterial> RawMaterialList = mapper.Map<List<RawMaterial>>(RawMaterialDto);
+		List<ReadRawMaterialDto> ReadRawMaterialList = new();
 		await repository.CreateTransaction(async () =>
 		{
 			foreach (var RawMaterial in RawMaterialList)
@@ -146,16 +128,18 @@ public class Business(IRepository repository, IMapper mapper, ILogger<Business> 
 				var recordKafka = mapper.Map<RawMaterialDtoForKafka>(res);
 				var record = TransactionalOutboxFactory.CreateInsert(recordKafka);
 				await repository.InsertTransactionalOutboxAsync(record, ct);
+				ReadRawMaterialList.Add(mapper.Map<ReadRawMaterialDto>(res));
 			}
-				await repository.SaveChangesAsync(ct);
+			await repository.SaveChangesAsync(ct);
 		});
 		observer.AddRawMaterial.OnNext(1);
+		if(ReadRawMaterialList.Count == 0)
+			throw new ExceptionHandler("Nessun prodotto inserito, controllare i dati inseriti", 400);
+		return ReadRawMaterialList;
 
 	}
-
 	public async Task CreateRawMaterialsWithoutNotificationAsync(RawMaterial previousState, CancellationToken ct = default)
 	{
-
 		CreateRawMaterialDto backupRawMaterial = new()
 		{
 			SupplierId = previousState.SupplierId,
@@ -164,27 +148,17 @@ public class Business(IRepository repository, IMapper mapper, ILogger<Business> 
 			Price = previousState.Price,
 			SupplierRawMaterialCode = previousState.SupplierRawMaterialCode,
 		};
-
-
 		var model = mapper.Map<RawMaterial>(backupRawMaterial);
-
 		var res = await repository.CreateRawMaterialAsync(model, ct);
 		await repository.SaveChangesAsync(ct);
-
 		var recordKafkaForInsert = mapper.Map<RawMaterialDtoForKafka>(res);
 		var recordKafkaForDelete = mapper.Map<RawMaterialDtoForKafka>(previousState);
-
 		var recordForDelete = TransactionalOutboxFactory.CreateCompensationDelete(recordKafkaForDelete);
 		var recordForInsert = TransactionalOutboxFactory.CreateCompensationInsert(recordKafkaForInsert);
-
 		await repository.InsertTransactionalOutboxAsync(recordForDelete, ct);
 		await repository.InsertTransactionalOutboxAsync(recordForInsert, ct);
 		await repository.SaveChangesAsync(ct);
-
 	}
-
-
-
 	public async Task UpdateRawMaterialAsync(UpdateRawMaterialDto RawMaterialDto, CancellationToken ct = default)
 	{
 		await repository.CreateTransaction(async () =>
@@ -206,8 +180,6 @@ public class Business(IRepository repository, IMapper mapper, ILogger<Business> 
 
 		observer.AddRawMaterial.OnNext(1);
 	}
-
-
 	public async Task<ReadRawMaterialDto> GetRawMaterialById(int rawMaterialId, CancellationToken ct = default)
 	{
 		var RawMaterial = await repository.GetRawMaterialByIdAsync(rawMaterialId, ct);
@@ -231,11 +203,4 @@ public class Business(IRepository repository, IMapper mapper, ILogger<Business> 
 
 	}
 	#endregion
-
-
-
-
-
-
-
 }

@@ -12,6 +12,8 @@ public class PurchaseManagerClientHttp(HttpClient httpClient) : IPurchaseManager
 	public async Task<List<UpdateRawMaterialQuantity>?> CreateSupplierOrder(CreateSupplierOrderDto SupplierOrderDto, CancellationToken cancellationToken = default)
 	{
 		var response = await httpClient.PostAsync($"SupplierOrder/CreateSupplierOrder", JsonContent.Create(SupplierOrderDto), cancellationToken);
+		if (!response.IsSuccessStatusCode)
+			throw new PurchaseServiceException((int)response.StatusCode, await response.Content.ReadAsStringAsync(cancellationToken));
 		return await response.Content.ReadFromJsonAsync<List<UpdateRawMaterialQuantity>>(cancellationToken: cancellationToken);
 	}
 	public async  Task<List<ReadSupplierOrderDto>> GetAllSupplierOrdersBySupplierIdAsync(int supplierId, CancellationToken cancellationToken = default)
@@ -77,15 +79,12 @@ public class PurchaseManagerClientHttp(HttpClient httpClient) : IPurchaseManager
 	#endregion
 
 	#region Supplier
-	public async Task<string?> CreateSupplier(CreateSupplierDto supplierDto, CancellationToken cancellationToken = default)
+	public async Task<ReadSupplierDto> CreateSupplier(CreateSupplierDto supplierDto, CancellationToken cancellationToken = default)
 	{
 		var response = await httpClient.PostAsync($"Supplier/CreateSupplier", JsonContent.Create(supplierDto), cancellationToken);
-		var content = await response.Content.ReadAsStringAsync(cancellationToken: cancellationToken);
 		if (!response.IsSuccessStatusCode)
-		{
-			throw new PurchaseServiceException((int)response.StatusCode, content);
-		}
-		return content;
+			throw new PurchaseServiceException((int)response.StatusCode, await response.Content.ReadAsStringAsync(cancellationToken));
+		return await response.Content.ReadFromJsonAsync<ReadSupplierDto>(cancellationToken: cancellationToken) ?? throw new PurchaseServiceException((int)response.StatusCode, "Supplier data is null.");
 	}
 	public async Task<string?> DeleteSupplier(int supplierId, CancellationToken cancellationToken = default)
 	{
@@ -97,23 +96,24 @@ public class PurchaseManagerClientHttp(HttpClient httpClient) : IPurchaseManager
 		}
 		return content;
 	}
-	public async  Task<ReadSupplierDto?> GetSupplier(int supplierId, CancellationToken cancellationToken = default)
+
+	public async Task<ReadSupplierDto> GetSupplier(int supplierId, CancellationToken cancellationToken = default)
 	{
 		var queryString = QueryString.Create(new Dictionary<string, string?>() {
 			{ "supplierId", supplierId.ToString(CultureInfo.InvariantCulture) }
 		});
 		var response = await httpClient.GetAsync($"/Supplier/ReadSupplier{queryString}", cancellationToken);
-		return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<ReadSupplierDto?>(cancellationToken: cancellationToken);
+		if (!response.IsSuccessStatusCode)
+			throw new PurchaseServiceException((int)response.StatusCode, await response.Content.ReadAsStringAsync(cancellationToken));
+		return await response.Content.ReadFromJsonAsync<ReadSupplierDto>(cancellationToken: cancellationToken) ?? throw new PurchaseServiceException((int)response.StatusCode, "Supplier data is null.");
 	}
-	public async Task<string?> UpdateSupplier(UpdateSupplierDto supplierDto, CancellationToken cancellationToken = default)
+
+	public async Task<ReadSupplierDto> UpdateSupplier(UpdateSupplierDto supplierDto, CancellationToken cancellationToken = default)
 	{
 		var response = await httpClient.PutAsync($"/Supplier/UpdateSupplier", JsonContent.Create(supplierDto), cancellationToken);
-		var content = await response.Content.ReadAsStringAsync(cancellationToken: cancellationToken);
 		if (!response.IsSuccessStatusCode)
-		{
-			throw new PurchaseServiceException((int)response.StatusCode, content);
-		}
-		return content;
+			throw new PurchaseServiceException((int)response.StatusCode, await response.Content.ReadAsStringAsync(cancellationToken));
+		return await response.Content.ReadFromJsonAsync<ReadSupplierDto>(cancellationToken: cancellationToken) ?? throw new PurchaseServiceException((int)response.StatusCode, "Supplier data is null.");
 	}
 	#endregion
 }

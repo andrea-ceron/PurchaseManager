@@ -16,23 +16,14 @@ public class SupplierOrderController(IBusiness business, ILogger<SupplierOrderCo
 	[HttpPost(Name = "CreateSupplierOrder")]
 	public async Task<ActionResult<List<UpdateRawMaterialQuantity>>> CreateSupplierOrderAsync(CreateSupplierOrderDto payload)
 	{
-		var res = await _business.CreateSupplierOrderAsync(payload);
-		if(res == null || res.Count == 0)
-		{
-			_logger.LogWarning("Nessun prodotto creato.");
-			return BadRequest("Nessun prodotto creato.");
-		}
-		return Ok(res);
+		var SupplierOrderList = await _business.CreateSupplierOrderAsync(payload);
+		return Ok(SupplierOrderList);
 	}
-
-
 
 	[HttpGet(Name = "ReadAllSupplierOrder")]
 	public async Task<ActionResult<List<ReadSupplierOrderDto>>> ReadAllSupplierOrder(int supplierId)
 	{
 		List<ReadSupplierOrderDto>? SupplierOrderList = await _business.GetAllSupplierOrdersBySupplierIdAsync(supplierId);
-		if(SupplierOrderList == null || SupplierOrderList.Count == 0)
-			return NotFound("No SupplierOrders found for this supplier");
 		return Ok(SupplierOrderList);
 	}
 

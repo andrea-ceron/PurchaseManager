@@ -12,44 +12,43 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 {
 
 	#region SupplierOrder
-	public async Task<SupplierOrder?> CreateSupplierOrderAsync(SupplierOrder model, CancellationToken ct = default)
+	public async Task<SupplierOrder> CreateSupplierOrderAsync(SupplierOrder model, CancellationToken ct = default)
 	{
 		await dbContext.SupplierOrders.AddAsync(model, ct);
 		return model;
 	}
 	public async Task DeleteSupplierOrderAsync(int SupplierOrderId, CancellationToken ct = default)
 	{
-		SupplierOrder? SupplierOrder = await GetSupplierOrderByIdAsync(SupplierOrderId, ct);
-		if (SupplierOrder == null) return;
+		SupplierOrder? SupplierOrder = await GetSupplierOrderByIdAsync(SupplierOrderId, ct) ?? throw new Exception("SupplierOrder non esistente");
 		dbContext.SupplierOrders.Remove(SupplierOrder);
 	}
-	public async Task<SupplierOrder?> GetSupplierOrderByIdAsync(int SupplierOrderId, CancellationToken ct = default)
+	public async Task<SupplierOrder> GetSupplierOrderByIdAsync(int SupplierOrderId, CancellationToken ct = default)
 	{
 		return  await dbContext.SupplierOrders
 			.Where(o => o.Id == SupplierOrderId)
 			.Include(o => o.RawMaterialSupplierOrder)
 			.ThenInclude(p => p.RawMaterial)
 			.AsNoTracking()
-			.SingleOrDefaultAsync(ct);
+			.SingleOrDefaultAsync(ct)
+			?? throw new Exception("Supplier non esistente");
 	}
-	public  Task<List<SupplierOrder>> GetSupplierOrderBySupplierIdAsync(int supplierId, CancellationToken ct = default)
+
+	public  Task<List<SupplierOrder>> GetSupplierOrdersBySupplierIdAsync(int supplierId, CancellationToken ct = default)
 	{
 		return  dbContext.SupplierOrders
 			.Where(o => o.SupplierId == supplierId)
 			.Include(o => o.RawMaterialSupplierOrder)
 				.ThenInclude(po => po.RawMaterial)
 			.AsNoTracking()
-			.ToListAsync(ct);
-
+			.ToListAsync(ct)
+			?? throw new Exception("Supplier non esistente");
 	}
+
 	public async Task DeleteAllSupplierOrdersBySupplierIdAsync(int supplierId, CancellationToken ct = default)
 	{
-		List<SupplierOrder> SupplierOrderList = await GetSupplierOrderBySupplierIdAsync(supplierId, ct);
-		if (SupplierOrderList == null || SupplierOrderList.Count == 0) return;
+		List<SupplierOrder> SupplierOrderList = await GetSupplierOrdersBySupplierIdAsync(supplierId, ct) ?? throw new Exception("SupplierOrder non esistente");
 		dbContext.SupplierOrders.RemoveRange(SupplierOrderList);
 	}
-
-
 
 	#endregion
 
@@ -61,25 +60,24 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 	}
 	public async Task DeleteSupplierAsync(int supplierId, CancellationToken ct = default)
 	{
-		var supplier = await GetSupplierByIdAsync(supplierId, ct);
-		if (supplier == null) return;
+		var supplier = await GetSupplierByIdAsync(supplierId, ct) ?? throw new Exception("Supplier da eliminare non esistente");
 		dbContext.Suppliers.Remove(supplier);
 	}
-	public async Task<Supplier?> GetSupplierByIdAsync(int supplierId, CancellationToken ct = default)
+	public async Task<Supplier> GetSupplierByIdAsync(int supplierId, CancellationToken ct = default)
 	{
-		return await dbContext.Suppliers
+		var result =  await dbContext.Suppliers
 			.Where(s => s.Id == supplierId)
 			.Include(s => s.RawMaterials)
 			.Include(s => s.SupplierOrders)
 				.ThenInclude(o => o.RawMaterialSupplierOrder)  
 			.AsNoTracking()  
-			.SingleOrDefaultAsync(ct);
-
+			.SingleOrDefaultAsync(ct)
+			?? throw new Exception("Supplier non esistente");
+		return result;
 	}
-	public async Task<Supplier?> UpdateSupplierAsync(Supplier model, CancellationToken ct = default)
+	public async Task<Supplier> UpdateSupplierAsync(Supplier model, CancellationToken ct = default)
 	{
-		Supplier? supplier = await GetSupplierByIdAsync(model.Id, ct);
-		if (supplier == null) return null;
+		Supplier? supplier = await GetSupplierByIdAsync(model.Id, ct) ?? throw new Exception("Supplier da modificare non esistente");
 		dbContext.Suppliers.Update(model);
 		return model;
 	}
@@ -94,28 +92,26 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 	public async Task DeleteRawMaterialAsync(int rawMaterialId, CancellationToken ct = default)
 	{
 		var model = await GetRawMaterialByIdAsync(rawMaterialId, ct);
-		if(model == null) return;
 		dbContext.RawMaterials.Remove(model);
 	}
 	public async Task<List<RawMaterial>> GetAllRawMaterialBySupplierIdAsync(int supplierId, CancellationToken ct = default)
 	{
-		return await  dbContext.RawMaterials.Where(o => o.SupplierId == supplierId).AsNoTracking().ToListAsync(ct);
+		return await  dbContext.RawMaterials.Where(o => o.SupplierId == supplierId).AsNoTracking().ToListAsync(ct) ?? throw new ArgumentException($"Nessun RawMaterial associato a Supplier con ID {supplierId} trovato");
 	}
-	public async Task<RawMaterial?> GetRawMaterialByIdAsync(int rawMaterialId, CancellationToken ct = default)
+	public async Task<RawMaterial> GetRawMaterialByIdAsync(int rawMaterialId, CancellationToken ct = default)
 	{
-		return await dbContext.RawMaterials.Where(p => p.Id == rawMaterialId).SingleOrDefaultAsync(ct);
+		return await dbContext.RawMaterials.Where(p => p.Id == rawMaterialId).SingleOrDefaultAsync(ct)
+			?? throw new ArgumentException($"RawMaterial con id {rawMaterialId} non trovato");
 	}
-	public async Task<RawMaterial?> UpdateRawMaterialAsync(RawMaterial model, CancellationToken ct = default)
+	public async Task<RawMaterial> UpdateRawMaterialAsync(RawMaterial model, CancellationToken ct = default)
 	{
-		RawMaterial? RawMaterial = await GetRawMaterialByIdAsync(model.Id, ct);
-		if (RawMaterial == null) return null;
+		RawMaterial RawMaterial = await GetRawMaterialByIdAsync(model.Id, ct);
 		dbContext.Entry(RawMaterial).CurrentValues.SetValues(model); 
 		return model;
 	}
 	public async Task DeleteAllRawMaterialsBySupplierIdAsync(int supplierId, CancellationToken ct = default)
 	{
-		List<RawMaterial>? RawMaterialList = await GetAllRawMaterialBySupplierIdAsync(supplierId, ct);
-		if (RawMaterialList == null || RawMaterialList.Count == 0) return;
+		List<RawMaterial> RawMaterialList = await GetAllRawMaterialBySupplierIdAsync(supplierId, ct);
 		dbContext.RawMaterials.RemoveRange(RawMaterialList);
 	}
 	#endregion
@@ -161,8 +157,8 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 	#region TransactionalOtbox
 	public async Task<IEnumerable<TransactionalOutbox>> GetAllTransactionalOutbox(CancellationToken ct = default)
 	{
-		return await  dbContext.TransactionalOutboxes
-			.ToListAsync(ct);
+		return await  dbContext.TransactionalOutboxes.ToListAsync(ct)
+			?? throw new ArgumentException("Nessun TransactionalOutbox record trovato");
 	}
 	public async Task DeleteTransactionalOutboxAsync(long id, CancellationToken cancellationToken = default)
 	{
@@ -170,14 +166,15 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 			?? throw new ArgumentException($"TransactionalOutbox con id {id} non trovato", nameof(id)));
 	}
 
-	public async Task<TransactionalOutbox?> GetTransactionalOutboxByKeyAsync(long id, CancellationToken cancellationToken = default)
+	public async Task<TransactionalOutbox> GetTransactionalOutboxByKeyAsync(long id, CancellationToken cancellationToken = default)
 	{
-		return await dbContext.TransactionalOutboxes.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+		return await dbContext.TransactionalOutboxes.FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
+			?? throw new ArgumentException($"TransactionalOutbox con id {id} non trovato", nameof(id));
 	}
 
 	public async Task InsertTransactionalOutboxAsync(TransactionalOutbox transactionalOutbox, CancellationToken cancellationToken = default)
 	{
-		await dbContext.TransactionalOutboxes.AddAsync(transactionalOutbox);
+		await dbContext.TransactionalOutboxes.AddAsync(transactionalOutbox, cancellationToken);
 	}
 
 

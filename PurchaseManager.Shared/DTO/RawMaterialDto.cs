@@ -1,21 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PurchaseManager.Shared.DTO
+﻿namespace PurchaseManager.Shared.DTO
 {
     public class CreateRawMaterialDto
 	{
         public int SupplierRawMaterialCode { get; set; }
         public decimal Price { get; set; }
 		public int? SupplierId { get; set; }
-
 		public int MinQuantityForSupplierOrder { get; set; }
 		public string RawMaterialName { get; set; } = string.Empty;
-
-
 	}
 
 	public class CreateRawMaterialFromSupplierControllerDto
@@ -24,8 +15,6 @@ namespace PurchaseManager.Shared.DTO
 		public decimal Price { get; set; }
 		public int MinQuantityForSupplierOrder { get; set; }
 		public string RawMaterialName { get; set; } = string.Empty;
-
-
 	}
 
 	public class ReadRawMaterialDto
@@ -34,12 +23,10 @@ namespace PurchaseManager.Shared.DTO
 		public int SupplierRawMaterialCode { get; set; }
 		public decimal Price { get; set; }
 		public int MinQuantityForSupplierOrder { get; set; }
-		public List<ReadRawMaterialSupplierOrderDto> RawMaterialSupplierOrders { get; set; }
+		public List<ReadRawMaterialSupplierOrderDto> RawMaterialSupplierOrders { get; set; } = new();
 		public int SupplierId { get; set; }
 		public string RawMaterialName { get; set; } = string.Empty;
-
 	}
-
 
 	public class UpdateRawMaterialDto
 	{
@@ -49,7 +36,6 @@ namespace PurchaseManager.Shared.DTO
 		public int SupplierId { get; set; }
 		public int MinQuantityForSupplierOrder { get; set; }
 		public string RawMaterialName { get; set; } = string.Empty;
-
 	}
 
 	public class RawMaterialDtoForKafka
@@ -63,8 +49,5 @@ namespace PurchaseManager.Shared.DTO
 	{
 		public int Id { get; set; }
 		public int QuantityToAdd { get; set; }
-
 	}
-
-
 }
