@@ -15,32 +15,31 @@ public class RawMaterialController(IBusiness business, ILogger<RawMaterialContro
 
 
 	[HttpPost(Name = "CreateRawMaterial")]
-	public async Task<ActionResult> CreateRawMaterial(IEnumerable<CreateRawMaterialDto> payload)
+	public async Task<ActionResult<IEnumerable<ReadRawMaterialDto>>> CreateListOfRawMaterials(IEnumerable<CreateRawMaterialDto> payload)
 	{
-		await _business.CreateListOfRawMaterialsAsync(payload);
-		return Ok();
+		var ListOfRawMAterialsCreated = await _business.CreateListOfRawMaterialsAsync(payload);
+		return Ok(ListOfRawMAterialsCreated);
 	}
 
 	[HttpGet(Name = "ReadRawMaterialById")]
 	public async Task<ActionResult<ReadRawMaterialDto>> ReadRawMaterialById(int rawMaterialId)
 	{
-		ReadRawMaterialDto? RawMaterialDto = await _business.GetRawMaterialById(rawMaterialId);
-		if (RawMaterialDto == null) return NotFound("RawMaterial non trovato");
+		ReadRawMaterialDto RawMaterialDto = await _business.GetRawMaterialById(rawMaterialId);
 		return Ok(RawMaterialDto);
 	}
 
 	[HttpPut(Name = "UpdateRawMaterial")]
-	public async Task<ActionResult> UpdateRawMaterial(UpdateRawMaterialDto payload)
+	public async Task<ActionResult<ReadRawMaterialDto>> UpdateRawMaterial(UpdateRawMaterialDto payload)
 	{
-		await _business.UpdateRawMaterialAsync(payload);
-		return Ok();
+		var UpdatedRawMaterial = await _business.UpdateRawMaterialAsync(payload);
+		return Ok(UpdatedRawMaterial);
 	}
 
 	[HttpDelete(Name = "DeleteRawMaterial")]
 	public async Task<ActionResult> DeleteRawMaterial(int RawMaterialId)
 	{
 		await _business.DeleteRawMaterialAsync(RawMaterialId);
-		return Ok();
+		return Ok($"Eliminazione del RawMAterial con ID {RawMaterialId} eseguita con successo");
 	}
 
 

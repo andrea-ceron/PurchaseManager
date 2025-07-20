@@ -1,11 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PurchaseManager.Repository.Abstraction;
 using PurchaseManager.Repository.Model;
-using System.Linq;
-using static System.Runtime.CompilerServices.RuntimeHelpers;
-using System.Numerics;
-using Microsoft.EntityFrameworkCore.Storage;
-
 namespace PurchaseManager.Repository;
 
 public class Repository(PurchaseDbContext dbContext) : IRepository
@@ -19,7 +14,7 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 	}
 	public async Task DeleteSupplierOrderAsync(int SupplierOrderId, CancellationToken ct = default)
 	{
-		SupplierOrder? SupplierOrder = await GetSupplierOrderByIdAsync(SupplierOrderId, ct) ?? throw new Exception("SupplierOrder non esistente");
+		SupplierOrder? SupplierOrder = await GetSupplierOrderByIdAsync(SupplierOrderId, ct);
 		dbContext.SupplierOrders.Remove(SupplierOrder);
 	}
 	public async Task<SupplierOrder> GetSupplierOrderByIdAsync(int SupplierOrderId, CancellationToken ct = default)
@@ -46,7 +41,7 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 
 	public async Task DeleteAllSupplierOrdersBySupplierIdAsync(int supplierId, CancellationToken ct = default)
 	{
-		List<SupplierOrder> SupplierOrderList = await GetSupplierOrdersBySupplierIdAsync(supplierId, ct) ?? throw new Exception("SupplierOrder non esistente");
+		List<SupplierOrder> SupplierOrderList = await GetSupplierOrdersBySupplierIdAsync(supplierId, ct);
 		dbContext.SupplierOrders.RemoveRange(SupplierOrderList);
 	}
 
@@ -60,7 +55,7 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 	}
 	public async Task DeleteSupplierAsync(int supplierId, CancellationToken ct = default)
 	{
-		var supplier = await GetSupplierByIdAsync(supplierId, ct) ?? throw new Exception("Supplier da eliminare non esistente");
+		var supplier = await GetSupplierByIdAsync(supplierId, ct);
 		dbContext.Suppliers.Remove(supplier);
 	}
 	public async Task<Supplier> GetSupplierByIdAsync(int supplierId, CancellationToken ct = default)
@@ -77,7 +72,7 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 	}
 	public async Task<Supplier> UpdateSupplierAsync(Supplier model, CancellationToken ct = default)
 	{
-		Supplier? supplier = await GetSupplierByIdAsync(model.Id, ct) ?? throw new Exception("Supplier da modificare non esistente");
+		Supplier? supplier = await GetSupplierByIdAsync(model.Id, ct);
 		dbContext.Suppliers.Update(model);
 		return model;
 	}
@@ -96,7 +91,8 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 	}
 	public async Task<List<RawMaterial>> GetAllRawMaterialBySupplierIdAsync(int supplierId, CancellationToken ct = default)
 	{
-		return await  dbContext.RawMaterials.Where(o => o.SupplierId == supplierId).AsNoTracking().ToListAsync(ct) ?? throw new ArgumentException($"Nessun RawMaterial associato a Supplier con ID {supplierId} trovato");
+		return await  dbContext.RawMaterials.Where(o => o.SupplierId == supplierId).AsNoTracking().ToListAsync(ct) 
+			?? throw new ArgumentException($"Nessun RawMaterial associato a Supplier con ID {supplierId} trovato");
 	}
 	public async Task<RawMaterial> GetRawMaterialByIdAsync(int rawMaterialId, CancellationToken ct = default)
 	{
@@ -133,7 +129,8 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 		return await dbContext.RawMaterialSupplierOrders
 			.Where(po => po.SupplierOrderId == SupplierOrderId)
 			.AsNoTracking()
-			.ToListAsync(ct);
+			.ToListAsync(ct)
+			?? throw new ArgumentException($"Nessun RawMaterialSupplierOrder associato a SupplierOrder con ID {SupplierOrderId} trovato");
 	}
 
 	public async Task<List<RawMaterialSupplierOrder>> GetAllRawMaterialSupplierOrderByRawMaterialIdAsync(int rawMaterialId, CancellationToken ct = default)
@@ -141,7 +138,8 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 		return await dbContext.RawMaterialSupplierOrders
 			.Where(po => po.RawMaterialId == rawMaterialId)
 			.AsNoTracking()
-			.ToListAsync(ct);
+			.ToListAsync(ct)
+			?? throw new ArgumentException($"Nessun RawMaterialSupplierOrder associato a RawMaterial con ID {rawMaterialId} trovato");
 	}
 
 
@@ -149,7 +147,6 @@ public class Repository(PurchaseDbContext dbContext) : IRepository
 	public async Task DeleteAllRawMaterialSupplierOrdersBySupplierOrderIdAsync(int SupplierOrderId, CancellationToken ct = default)
 	{
 		var listOfRawMaterialSupplierOrder = await GetAllRawMaterialSupplierOrderBySupplierOrderIdAsync(SupplierOrderId, ct);
-		if (listOfRawMaterialSupplierOrder == null || listOfRawMaterialSupplierOrder.Count == 0) return;
 		dbContext.RawMaterialSupplierOrders.RemoveRange(listOfRawMaterialSupplierOrder);
 	}
 	#endregion

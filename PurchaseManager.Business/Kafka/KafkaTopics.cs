@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Utility.Kafka.DependencyInjection;
-
+﻿using Utility.Kafka.DependencyInjection;
 namespace PurchaseManager.Business.Kafka;
 
 public class KafkaTopicsOutput : AbstractOutputKafkaTopics
 {
-	public string RawMaterial { get; set; } = "raw-materials";
-	public override IEnumerable<string> GetTopics() => [RawMaterial];
+	public string RawMaterialPurchaseToStock { get; set; } = "rawMaterialPurchaseToStock";
+	public override IEnumerable<string> GetTopics() => [RawMaterialPurchaseToStock];
+}
+
+public class KafkaTopicsInput : AbstractOutputKafkaTopics
+{
+	public string RawMaterialStockToPurchase { get; set; } = "rawMaterialStockToPurchase";
+	public override IEnumerable<string> GetTopics() => [RawMaterialStockToPurchase];
 }

@@ -1,4 +1,6 @@
-﻿namespace PurchaseManager.Shared.DTO
+﻿using System.ComponentModel;
+
+namespace PurchaseManager.Shared.DTO
 {
     public class CreateRawMaterialDto
 	{
@@ -41,7 +43,10 @@
 	public class RawMaterialDtoForKafka
 	{
 		public int Id { get; set; }
-		public int SupplierId { get; set; }
+		public int SupplierRawMaterialCode { get; set; }
+		public decimal Price { get; set; }
+		public int? SupplierId { get; set; }
+		public int MinQuantityForSupplierOrder { get; set; }
 		public string RawMaterialName { get; set; } = string.Empty;
 	}
 

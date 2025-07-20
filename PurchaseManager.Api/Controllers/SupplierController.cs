@@ -38,7 +38,7 @@ public class SupplierController(IBusiness business, ILogger<SupplierController> 
 	public async Task<ActionResult<string>> DeleteSupplier(int SupplierId)
 	{
 		await _business.DeleteSupplierAsync(SupplierId);
-		return Ok("Eliminazione del Fornitore Eseguita con successo");
+		return Ok($"Eliminazione del Fornitore con ID {SupplierId} Eseguita con successo");
 	}
 
 }

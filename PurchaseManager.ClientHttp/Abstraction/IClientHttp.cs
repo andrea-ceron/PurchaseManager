@@ -8,13 +8,13 @@ public interface IPurchaseManagerClientHttp
     Task<ReadSupplierDto> UpdateSupplier(UpdateSupplierDto supplierDto, CancellationToken cancellationToken = default);
 	Task<string?> DeleteSupplier(int supplierId, CancellationToken cancellationToken = default);
 
-	Task<string?> CreateRawMaterial(IEnumerable<CreateRawMaterialDto> payload, CancellationToken cancellationToken = default);
-	Task<List<ReadRawMaterialDto>?> GetRawMaterialListOfSupplier(int SupplierId, CancellationToken cancellationToken = default);
-	Task<string?> UpdateRawMaterial(UpdateRawMaterialDto RawMaterialDto, CancellationToken cancellationToken = default);
+	Task<IEnumerable<ReadRawMaterialDto>> CreateListOfRawMaterials(IEnumerable<CreateRawMaterialDto> payload, CancellationToken cancellationToken = default);
+	Task<IEnumerable<ReadRawMaterialDto>> GetRawMaterialListOfSupplier(int SupplierId, CancellationToken cancellationToken = default);
+	Task<ReadRawMaterialDto> UpdateRawMaterial(UpdateRawMaterialDto RawMaterialDto, CancellationToken cancellationToken = default);
 	Task<string?> DeleteRawMaterial(int RawMaterialId, CancellationToken cancellationToken = default);
 
-	Task<List<UpdateRawMaterialQuantity>?> CreateSupplierOrder(CreateSupplierOrderDto SupplierOrderDto, CancellationToken cancellationToken = default);
-	Task<ReadSupplierOrderDto?> GetSupplierOrderAsync(int SupplierOrderId, CancellationToken cancellationToken = default);
+	Task<IEnumerable<UpdateRawMaterialQuantity>?> CreateSupplierOrder(CreateSupplierOrderDto SupplierOrderDto, CancellationToken cancellationToken = default);
+	Task<ReadSupplierOrderDto> GetSupplierOrderAsync(int SupplierOrderId, CancellationToken cancellationToken = default);
 	Task<List<ReadSupplierOrderDto>> GetAllSupplierOrdersBySupplierIdAsync(int supplierId, CancellationToken cancellationToken = default);
 
 

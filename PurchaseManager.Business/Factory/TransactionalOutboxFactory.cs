@@ -9,9 +9,9 @@ namespace PurchaseManager.Business.Factory;
     public static class TransactionalOutboxFactory
     {
 
-	public static TransactionalOutbox CreateInsert(RawMaterialDtoForKafka dto, RawMaterial? previousState = null) => Create(dto, Operations.Insert, previousState);
+	public static TransactionalOutbox CreateInsert(RawMaterialDtoForKafka dto) => Create(dto, Operations.Insert);
 	public static TransactionalOutbox CreateUpdate(RawMaterialDtoForKafka dto, RawMaterial previousState) => Create(dto, Operations.Update, previousState);
-	public static TransactionalOutbox CreateDelete(RawMaterialDtoForKafka dto, RawMaterial previousState) => Create(dto, Operations.Delete, previousState);
+	public static TransactionalOutbox CreateDelete(RawMaterialDtoForKafka dto) => Create(dto, Operations.Delete);
 	public static TransactionalOutbox CreateCompensationInsert(RawMaterialDtoForKafka dto) => Create(dto, Operations.CompensationInsert);
 	public static TransactionalOutbox CreateCompensationDelete(RawMaterialDtoForKafka dto) => Create(dto, Operations.CompensationDelete);
 	public static TransactionalOutbox CreateCompensationUpdate(RawMaterialDtoForKafka dto) => Create(dto, Operations.CompensationUpdate);

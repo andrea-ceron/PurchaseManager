@@ -9,8 +9,6 @@ using PurchaseManager.Shared.DTO;
 using Microsoft.Extensions.Logging;
 using Utility.Kafka.MessageHandlers;
 using PurchaseManager.Business.Factory;
-using System.Security.Cryptography.X509Certificates;
-
 namespace PurchaseManager.Business.Kafka;
 
 public class ProducerServiceWithSubscription(
@@ -32,7 +30,7 @@ public class ProducerServiceWithSubscription(
 
 	protected override IDisposable Subscribe(TaskCompletionSource<bool> tcs)
 	{
-		return observable.AddRawMaterial.Subscribe((change) => tcs.TrySetResult(true));
+		return observable.AddRawMaterialPurchaseToStock.Subscribe((change) => tcs.TrySetResult(true));
 	}
 
 	protected override async Task OperationsAsync(CancellationToken cancellationToken)
@@ -51,11 +49,9 @@ public class ProducerServiceWithSubscription(
 		{
 			string topic = elem.Table switch
 			{
-				nameof(RawMaterialDtoForKafka) => optionTopics.Value.RawMaterial,
+				nameof(RawMaterialDtoForKafka) => optionTopics.Value.RawMaterialPurchaseToStock,
 				_ => throw new ArgumentOutOfRangeException($"La tabella {elem.Table} non è prevista come topic nel Producer")
 			};
-
-
 			try
 			{
 				logger.LogInformation($"Inizio produzione, {elem.Id.ToString()}, {elem.Message}");
@@ -75,42 +71,13 @@ public class ProducerServiceWithSubscription(
 				switch (elem.Table)
 				{
 					case nameof(RawMaterialDtoForKafka):
-						var opMsg = TransactionalOutboxFactory.Deserialize<RawMaterialDtoForKafka, RawMaterial>(elem.Message);
-						switch (opMsg.Operation)
-						{
-							case Operations.Insert:
-								await repository.DeleteRawMaterialAsync(opMsg.Dto.Id, cancellationToken);
-								await repository.DeleteTransactionalOutboxAsync(elem.Id, cancellationToken);
-								logger.LogWarning("Compensazione Insert: eliminato rawMaterial con ID {id}", opMsg.Dto.Id);
-								break;
-
-							case Operations.Update:
-								await repository.UpdateRawMaterialAsync( opMsg.previousState!, cancellationToken);
-								await repository.DeleteTransactionalOutboxAsync(elem.Id, cancellationToken);
-								logger.LogWarning("Compensazione Update: eliminato rawMaterial con ID {id}", opMsg.Dto.Id);
-
-								break;
-
-							case Operations.Delete:
-								logger.LogWarning("Compensazione Delete: eliminato rawMaterial con ID {id}", opMsg.Dto.Id);
-								await business.CreateRawMaterialsWithoutNotificationAsync(opMsg.previousState, cancellationToken);
-								await repository.DeleteTransactionalOutboxAsync(elem.Id, cancellationToken);
-
-								break;
-							default:
-								logger.LogError("Operazione sconosciuta: {op}", opMsg.Operation);
-								break;
-						}
+						await RawMaterialCompensationOperation(elem, repository, business, cancellationToken);
 						break;
-
 					default:
 						logger.LogError("Tabella non supportata per compensazione: {table}", elem.Table);
 						break;
 				}
-
-				
 				await repository.SaveChangesAsync(cancellationToken);
-
 				continue;
 			}
 			catch (Exception ex)
@@ -123,7 +90,44 @@ public class ProducerServiceWithSubscription(
 		}
 	}
 
+	private async Task RawMaterialCompensationOperation(TransactionalOutbox elem, IRepository repository, IBusiness business, CancellationToken cancellationToken = default)
+	{
+			var opMsg = TransactionalOutboxFactory.Deserialize<RawMaterialDtoForKafka, RawMaterial>(elem.Message);
+			switch (opMsg.Operation)
+			{
+				case Operations.Insert:
+					await repository.DeleteRawMaterialAsync(opMsg.Dto.Id, cancellationToken);
+					await repository.DeleteTransactionalOutboxAsync(elem.Id, cancellationToken);
+					logger.LogWarning("Incontrata Label Insert. Compensazione Insert: eliminato rawMaterial con ID {id}", opMsg.Dto.Id);
+					break;
 
+				case Operations.Update:
+					await repository.UpdateRawMaterialAsync(opMsg.previousState!, cancellationToken);
+					await repository.DeleteTransactionalOutboxAsync(elem.Id, cancellationToken);
+					logger.LogWarning("Incontrata Label Update. Compensazione Update: eliminato rawMaterial con ID {id}", opMsg.Dto.Id);
+					break;
+
+				case Operations.Delete:
+					logger.LogWarning("Incontrata Label Delete. Compensazione Delete: nessuna operazione eseguita");
+					break;
+
+				case Operations.CompensationInsert:
+					logger.LogWarning("Incontrata Compensazione Insert: nessuna azione eseguita dal produttore");
+					break;
+
+				case Operations.CompensationUpdate:
+					logger.LogWarning("Incontrata Compensazione Update: nessuna azione eseguita dal produttore");
+					break;
+
+				case Operations.CompensationDelete:
+					logger.LogWarning("Incontrata Compensazione Delete: nessuna azione eseguita dal produttore");
+					break;
+
+				default:
+					logger.LogError("Operazione sconosciuta: {op}", opMsg.Operation);
+					break;
+			}
+		}
 
 
 	}

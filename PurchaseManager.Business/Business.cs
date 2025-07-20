@@ -5,10 +5,6 @@ using PurchaseManager.Business.Abstraction;
 using PurchaseManager.Repository.Abstraction;
 using PurchaseManager.Repository.Model;
 using PurchaseManager.Shared.DTO;
-using Microsoft.EntityFrameworkCore;
-using System.Threading;
-using System.Linq.Expressions;
-
 namespace PurchaseManager.Business;
 
 public class Business(IRepository repository, IMapper mapper, ILogger<Business> logger, IRawMaterialObserver observer) : IBusiness
@@ -115,7 +111,7 @@ public class Business(IRepository repository, IMapper mapper, ILogger<Business> 
 	#endregion
 
 	#region RawMaterial
-	public async Task<List<ReadRawMaterialDto>> CreateListOfRawMaterialsAsync(IEnumerable<CreateRawMaterialDto> RawMaterialDto, CancellationToken ct = default)
+	public async Task<IEnumerable<ReadRawMaterialDto>> CreateListOfRawMaterialsAsync(IEnumerable<CreateRawMaterialDto> RawMaterialDto, CancellationToken ct = default)
 	{
 		List<RawMaterial> RawMaterialList = mapper.Map<List<RawMaterial>>(RawMaterialDto);
 		List<ReadRawMaterialDto> ReadRawMaterialList = new();
@@ -132,53 +128,33 @@ public class Business(IRepository repository, IMapper mapper, ILogger<Business> 
 			}
 			await repository.SaveChangesAsync(ct);
 		});
-		observer.AddRawMaterial.OnNext(1);
+		logger.LogInformation("Eseguo observer.OnNext()");
+		observer.AddRawMaterialPurchaseToStock.OnNext(1);
 		if(ReadRawMaterialList.Count == 0)
 			throw new ExceptionHandler("Nessun prodotto inserito, controllare i dati inseriti", 400);
 		return ReadRawMaterialList;
 
 	}
-	public async Task CreateRawMaterialsWithoutNotificationAsync(RawMaterial previousState, CancellationToken ct = default)
+	public async Task<ReadRawMaterialDto> UpdateRawMaterialAsync(UpdateRawMaterialDto RawMaterialDto, CancellationToken ct = default)
 	{
-		CreateRawMaterialDto backupRawMaterial = new()
-		{
-			SupplierId = previousState.SupplierId,
-			MinQuantityForSupplierOrder = previousState.MinQuantityForSupplierOrder,
-			RawMaterialName = previousState.RawMaterialName,
-			Price = previousState.Price,
-			SupplierRawMaterialCode = previousState.SupplierRawMaterialCode,
-		};
-		var model = mapper.Map<RawMaterial>(backupRawMaterial);
-		var res = await repository.CreateRawMaterialAsync(model, ct);
-		await repository.SaveChangesAsync(ct);
-		var recordKafkaForInsert = mapper.Map<RawMaterialDtoForKafka>(res);
-		var recordKafkaForDelete = mapper.Map<RawMaterialDtoForKafka>(previousState);
-		var recordForDelete = TransactionalOutboxFactory.CreateCompensationDelete(recordKafkaForDelete);
-		var recordForInsert = TransactionalOutboxFactory.CreateCompensationInsert(recordKafkaForInsert);
-		await repository.InsertTransactionalOutboxAsync(recordForDelete, ct);
-		await repository.InsertTransactionalOutboxAsync(recordForInsert, ct);
-		await repository.SaveChangesAsync(ct);
-	}
-	public async Task UpdateRawMaterialAsync(UpdateRawMaterialDto RawMaterialDto, CancellationToken ct = default)
-	{
-		await repository.CreateTransaction(async () =>
+		var result = await repository.CreateTransaction(async () =>
 		{
 			var currentStateElement = await repository.GetRawMaterialByIdAsync((int)RawMaterialDto.Id, ct);
-			if (currentStateElement == null)
-				throw new ExceptionHandler("RawMaterial non trovata");
 
 			var originalCopy = mapper.Map<RawMaterial>(currentStateElement);
 
-			mapper.Map(RawMaterialDto, currentStateElement);
+			var result = mapper.Map(RawMaterialDto, currentStateElement);
 			await repository.SaveChangesAsync(ct);
 
 			var dtoUpdateRawMaterial = mapper.Map<RawMaterialDtoForKafka>(RawMaterialDto);
 			var record = TransactionalOutboxFactory.CreateUpdate(dtoUpdateRawMaterial, originalCopy);
 			await repository.InsertTransactionalOutboxAsync(record, ct);
 			await repository.SaveChangesAsync(ct);
+			return mapper.Map<ReadRawMaterialDto>(result);
 		});
 
-		observer.AddRawMaterial.OnNext(1);
+		observer.AddRawMaterialPurchaseToStock.OnNext(1);
+		return result;
 	}
 	public async Task<ReadRawMaterialDto> GetRawMaterialById(int rawMaterialId, CancellationToken ct = default)
 	{
@@ -195,11 +171,11 @@ public class Business(IRepository repository, IMapper mapper, ILogger<Business> 
 			await repository.DeleteRawMaterialAsync(RawMaterialId, ct);
 			await repository.SaveChangesAsync(ct);
 			var dtoUpdateRawMaterial = mapper.Map<RawMaterialDtoForKafka>(RawMaterialDto);
-			var record = TransactionalOutboxFactory.CreateDelete(dtoUpdateRawMaterial, RawMaterialDto);
+			var record = TransactionalOutboxFactory.CreateDelete(dtoUpdateRawMaterial);
 			await repository.InsertTransactionalOutboxAsync(record, ct);
 			await repository.SaveChangesAsync(ct);
 		});
-		observer.AddRawMaterial.OnNext(1);
+		observer.AddRawMaterialPurchaseToStock.OnNext(1);
 
 	}
 	#endregion

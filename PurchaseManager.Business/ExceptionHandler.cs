@@ -2,11 +2,11 @@
 
 namespace PurchaseManager.Business;
 
-    public class ExceptionHandler : Exception
-    {
+public class ExceptionHandler : Exception
+{
 	public int StatusCode { get; }
-	public string Message { get; }
-	public Object? InvolvedElement { get; }
+	public new string? Message { get; } 
+	public object? InvolvedElement { get; }
 
 	public ExceptionHandler(string message, int statusCode = 400)
 		: base(message)
@@ -15,12 +15,11 @@ namespace PurchaseManager.Business;
 		Message = message;
 	}
 
-	public ExceptionHandler(string message, Object elem, int statusCode = 400)
-		:base(message)
+	public ExceptionHandler(string message, object elem, int statusCode = 400)
+		: base(message)
 	{
 		StatusCode = statusCode;
 		Message = message;
 		InvolvedElement = elem;
-
 	}
 }

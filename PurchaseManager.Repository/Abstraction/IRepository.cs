@@ -1,5 +1,4 @@
 ﻿using PurchaseManager.Repository.Model;
-
 namespace PurchaseManager.Repository.Abstraction;
 
 public interface IRepository

@@ -29,7 +29,6 @@ public class InputFileProfile : Profile
 
 		CreateMap<CreateRawMaterialSupplierOrderDto, RawMaterialSupplierOrder>();
 		CreateMap<CreateRawMaterialSupplierOrderFromSupplierOrderControllerDto, RawMaterialSupplierOrder>();
-
 		CreateMap<RawMaterialSupplierOrder, ReadRawMaterialSupplierOrderDto>();
 		CreateMap<UpdateRawMaterialSupplierOrderDto, RawMaterialSupplierOrder>();
 
@@ -39,6 +38,8 @@ public class InputFileProfile : Profile
 		CreateMap<UpdateRawMaterialDto, RawMaterial>();
 		CreateMap<CreateRawMaterialFromSupplierControllerDto, RawMaterial>();
 		CreateMap<RawMaterial, RawMaterialDtoForKafka>();
+		CreateMap<RawMaterialDtoForKafka, RawMaterial>();
+
 		CreateMap<UpdateRawMaterialDto, RawMaterialDtoForKafka>();
 		CreateMap<ReadRawMaterialDto, RawMaterialDtoForKafka>();
 

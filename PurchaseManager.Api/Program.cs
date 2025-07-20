@@ -3,6 +3,7 @@ using PurchaseManager.Api.Middlewares;
 using PurchaseManager.Business;
 using PurchaseManager.Business.Abstraction;
 using PurchaseManager.Business.Kafka;
+using PurchaseManager.Business.Kafka.MessageHandler;
 using PurchaseManager.Repository;
 using PurchaseManager.Repository.Abstraction;
 using Utility.Kafka.DependencyInjection;
@@ -25,8 +26,7 @@ builder.Services.AddScoped<IBusiness, Business>();
 builder.Services.AddSingleton(p => ActivatorUtilities.CreateInstance<Subject>(p));
 builder.Services.AddSingleton<IRawMaterialsObservable>(p => p.GetRequiredService<Subject>());
 builder.Services.AddSingleton<IRawMaterialObserver>(p => p.GetRequiredService<Subject>());
-builder.Services.AddKafkaProducer<KafkaTopicsOutput, ProducerServiceWithSubscription>(builder.Configuration);
-
+builder.Services.AddKafkaConsumerAndProducer<KafkaTopicsInput, KafkaTopicsOutput, MessageHandlerFactory, ProducerServiceWithSubscription>(builder.Configuration);
 builder.Logging.AddConsole();
 
 var app = builder.Build();
