@@ -69,14 +69,6 @@ public class PurchaseManagerClientHttp(HttpClient httpClient) : IPurchaseManager
 		return await response.Content.ReadFromJsonAsync<IEnumerable<ReadRawMaterialDto>>(cancellationToken: cancellationToken)
 			?? throw new PurchaseServiceException((int)response.StatusCode, "Raw material data is null.");
 	}
-	public async  Task<ReadRawMaterialDto> UpdateRawMaterial(UpdateRawMaterialDto RawMaterialDto, CancellationToken cancellationToken = default)
-	{
-		var response = await httpClient.PutAsync($"/RawMaterial/UpdateRawMaterial", JsonContent.Create(RawMaterialDto), cancellationToken);
-		if (!response.IsSuccessStatusCode)
-			throw new PurchaseServiceException((int)response.StatusCode, await response.Content.ReadAsStringAsync(cancellationToken: cancellationToken));
-		return await response.Content.ReadFromJsonAsync<ReadRawMaterialDto>(cancellationToken: cancellationToken)
-			?? throw new PurchaseServiceException((int)response.StatusCode, "Raw material data is null.");
-	}
 	#endregion
 
 	#region Supplier

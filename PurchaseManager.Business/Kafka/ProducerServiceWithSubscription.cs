@@ -92,7 +92,7 @@ public class ProducerServiceWithSubscription(
 
 	private async Task RawMaterialCompensationOperation(TransactionalOutbox elem, IRepository repository, IBusiness business, CancellationToken cancellationToken = default)
 	{
-			var opMsg = TransactionalOutboxFactory.Deserialize<RawMaterialDtoForKafka, RawMaterial>(elem.Message);
+			var opMsg = TransactionalOutboxFactory.Deserialize<RawMaterialDtoForKafka>(elem.Message);
 			switch (opMsg.Operation)
 			{
 				case Operations.Insert:
@@ -102,9 +102,7 @@ public class ProducerServiceWithSubscription(
 					break;
 
 				case Operations.Update:
-					await repository.UpdateRawMaterialAsync(opMsg.previousState!, cancellationToken);
-					await repository.DeleteTransactionalOutboxAsync(elem.Id, cancellationToken);
-					logger.LogWarning("Incontrata Label Update. Compensazione Update: eliminato rawMaterial con ID {id}", opMsg.Dto.Id);
+					logger.LogWarning("Incontrata Label Update. Compensazione Update: nessuna operazione eseguita");
 					break;
 
 				case Operations.Delete:

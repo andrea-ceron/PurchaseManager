@@ -20,7 +20,6 @@ public interface IBusiness
     #region RawMaterial
     public Task<IEnumerable<ReadRawMaterialDto>> CreateListOfRawMaterialsAsync(IEnumerable<CreateRawMaterialDto> RawMaterialDto, CancellationToken ct = default);
     public Task<ReadRawMaterialDto> GetRawMaterialById(int rawMaterialId, CancellationToken ct = default);
-	public Task<ReadRawMaterialDto> UpdateRawMaterialAsync(UpdateRawMaterialDto RawMaterialDto, CancellationToken ct = default);
 	public Task DeleteRawMaterialAsync(int RawMaterialId, CancellationToken ct = default);
 	#endregion
 }

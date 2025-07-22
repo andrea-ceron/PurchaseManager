@@ -135,27 +135,6 @@ public class Business(IRepository repository, IMapper mapper, ILogger<Business> 
 		return ReadRawMaterialList;
 
 	}
-	public async Task<ReadRawMaterialDto> UpdateRawMaterialAsync(UpdateRawMaterialDto RawMaterialDto, CancellationToken ct = default)
-	{
-		var result = await repository.CreateTransaction(async () =>
-		{
-			var currentStateElement = await repository.GetRawMaterialByIdAsync((int)RawMaterialDto.Id, ct);
-
-			var originalCopy = mapper.Map<RawMaterial>(currentStateElement);
-
-			var result = mapper.Map(RawMaterialDto, currentStateElement);
-			await repository.SaveChangesAsync(ct);
-
-			var dtoUpdateRawMaterial = mapper.Map<RawMaterialDtoForKafka>(RawMaterialDto);
-			var record = TransactionalOutboxFactory.CreateUpdate(dtoUpdateRawMaterial, originalCopy);
-			await repository.InsertTransactionalOutboxAsync(record, ct);
-			await repository.SaveChangesAsync(ct);
-			return mapper.Map<ReadRawMaterialDto>(result);
-		});
-
-		observer.AddRawMaterialPurchaseToStock.OnNext(1);
-		return result;
-	}
 	public async Task<ReadRawMaterialDto> GetRawMaterialById(int rawMaterialId, CancellationToken ct = default)
 	{
 		var RawMaterial = await repository.GetRawMaterialByIdAsync(rawMaterialId, ct);
@@ -179,4 +158,5 @@ public class Business(IRepository repository, IMapper mapper, ILogger<Business> 
 
 	}
 	#endregion
+
 }

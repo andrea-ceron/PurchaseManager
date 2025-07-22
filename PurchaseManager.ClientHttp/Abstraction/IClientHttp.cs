@@ -10,7 +10,6 @@ public interface IPurchaseManagerClientHttp
 
 	Task<IEnumerable<ReadRawMaterialDto>> CreateListOfRawMaterials(IEnumerable<CreateRawMaterialDto> payload, CancellationToken cancellationToken = default);
 	Task<IEnumerable<ReadRawMaterialDto>> GetRawMaterialListOfSupplier(int SupplierId, CancellationToken cancellationToken = default);
-	Task<ReadRawMaterialDto> UpdateRawMaterial(UpdateRawMaterialDto RawMaterialDto, CancellationToken cancellationToken = default);
 	Task<string?> DeleteRawMaterial(int RawMaterialId, CancellationToken cancellationToken = default);
 
 	Task<IEnumerable<UpdateRawMaterialQuantity>?> CreateSupplierOrder(CreateSupplierOrderDto SupplierOrderDto, CancellationToken cancellationToken = default);

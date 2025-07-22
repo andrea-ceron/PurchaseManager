@@ -16,12 +16,12 @@ public class RawMaterialsKafkaMessageHandler
 	IRawMaterialObserver observer)
 	: AbstractMessageHandler<RawMaterialDtoForKafka, RawMaterial>(errorManager, map)
 {
-	protected override Task DeleteDto(RawMaterial? messageDto, CancellationToken ct = default)
+	protected override Task CompensationDeleteDto(RawMaterial? messageDto, CancellationToken ct = default)
 	{
 		throw new NotImplementedException();
 	}
 
-	protected async override Task InsertDto(RawMaterial? domainDto, CancellationToken ct = default)
+	protected override async Task CompensationInsertDto(RawMaterial? domainDto, CancellationToken ct = default)
 	{
 		if (domainDto == null)
 		{
@@ -40,6 +40,21 @@ public class RawMaterialsKafkaMessageHandler
 		await repository.InsertTransactionalOutboxAsync(record, ct);
 		await repository.SaveChangesAsync(ct);
 		observer.AddRawMaterialPurchaseToStock.OnNext(1);
+	}
+
+	protected override Task CompensationUpdateDto(RawMaterial? messageDto, CancellationToken ct = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	protected override Task DeleteDto(RawMaterial? messageDto, CancellationToken ct = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	protected async override Task InsertDto(RawMaterial? domainDto, CancellationToken ct = default)
+	{
+		throw new NotImplementedException();
 	}
 
 	protected override Task UpdateDto(RawMaterial? messageDto, CancellationToken ct = default)

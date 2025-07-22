@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using PurchaseManager.Repository.Model;
+﻿using PurchaseManager.Repository.Model;
 using PurchaseManager.Shared.DTO;
 using System.Text.Json;
 using Utility.Kafka.MessageHandlers;
@@ -10,24 +9,22 @@ namespace PurchaseManager.Business.Factory;
     {
 
 	public static TransactionalOutbox CreateInsert(RawMaterialDtoForKafka dto) => Create(dto, Operations.Insert);
-	public static TransactionalOutbox CreateUpdate(RawMaterialDtoForKafka dto, RawMaterial previousState) => Create(dto, Operations.Update, previousState);
+	public static TransactionalOutbox CreateUpdate(RawMaterialDtoForKafka dto) => Create(dto, Operations.Update);
 	public static TransactionalOutbox CreateDelete(RawMaterialDtoForKafka dto) => Create(dto, Operations.Delete);
 	public static TransactionalOutbox CreateCompensationInsert(RawMaterialDtoForKafka dto) => Create(dto, Operations.CompensationInsert);
 	public static TransactionalOutbox CreateCompensationDelete(RawMaterialDtoForKafka dto) => Create(dto, Operations.CompensationDelete);
 	public static TransactionalOutbox CreateCompensationUpdate(RawMaterialDtoForKafka dto) => Create(dto, Operations.CompensationUpdate);
 
 
-	private static TransactionalOutbox Create(RawMaterialDtoForKafka dto, string operation, RawMaterial? previousState = null) => Create(nameof(RawMaterialDtoForKafka), dto, operation, previousState);
-	private static TransactionalOutbox Create<TDTO, TModel>(string table, TDTO dto, string operation, TModel? model) 
-		where TDTO : class 
-		where TModel : class, new()
+	private static TransactionalOutbox Create(RawMaterialDtoForKafka dto, string operation) => Create(nameof(RawMaterialDtoForKafka), dto, operation);
+	private static TransactionalOutbox Create<TDTO>(string table, TDTO dto, string operation) 
+		where TDTO : class, new()
 	{
 
-		OperationMessage<TDTO, TModel> opMsg = new OperationMessage<TDTO, TModel>()
+		OperationMessage<TDTO> opMsg = new ()
 		{
 			Dto = dto,
 			Operation = operation,
-			previousState = model
 		};
 
 		return new TransactionalOutbox()
@@ -37,9 +34,9 @@ namespace PurchaseManager.Business.Factory;
 		};
 	}
 
-	public static OperationMessage<TDTO, TModel> Deserialize<TDTO, TModel>(string json) where TDTO : class where TModel : class, new()
+	public static OperationMessage<TDTO> Deserialize<TDTO>(string json) where TDTO : class, new()
 	{
-		return JsonSerializer.Deserialize<OperationMessage<TDTO, TModel>>(json)!;
+		return JsonSerializer.Deserialize<OperationMessage<TDTO>>(json)!;
 	}
 
 

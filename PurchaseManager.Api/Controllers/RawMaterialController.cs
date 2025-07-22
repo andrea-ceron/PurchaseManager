@@ -28,12 +28,6 @@ public class RawMaterialController(IBusiness business, ILogger<RawMaterialContro
 		return Ok(RawMaterialDto);
 	}
 
-	[HttpPut(Name = "UpdateRawMaterial")]
-	public async Task<ActionResult<ReadRawMaterialDto>> UpdateRawMaterial(UpdateRawMaterialDto payload)
-	{
-		var UpdatedRawMaterial = await _business.UpdateRawMaterialAsync(payload);
-		return Ok(UpdatedRawMaterial);
-	}
 
 	[HttpDelete(Name = "DeleteRawMaterial")]
 	public async Task<ActionResult> DeleteRawMaterial(int RawMaterialId)
